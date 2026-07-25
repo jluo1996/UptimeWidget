@@ -38,6 +38,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        if: false
         with:
           name: UptimeWidget
           path: UptimeWidget/UptimeWidget/bin/${{ env.Platform }}/${{ env.Configuration }}/net10.0-windows/
