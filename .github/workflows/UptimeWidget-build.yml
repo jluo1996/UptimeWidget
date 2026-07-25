@@ -26,6 +26,7 @@ jobs:
           dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
 
       - name: List all files recursively
+        if: github.ref != 'refs/heads/main'
         run: |
           echo "Current directory:"
           pwd
