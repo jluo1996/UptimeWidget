@@ -40,8 +40,8 @@ jobs:
         with:
           name: UptimeWidget-build-artifact
           path: |
-            UptimeWidget/UptimeWidget/bin/$env:PLATFORM/$env:CONFIGURATION/net10.0-windows/
-            !UptimeWidget/UptimeWidget/bin/$env:PLATFORM/$env:CONFIGURATION/net10.0-windows/**/*.pdb
+            UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/
+            !UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/**/*.pdb
 
       # - name: Install WiX ClI
       #   run: dotnet tool install --global WiX
