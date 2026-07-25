@@ -27,3 +27,13 @@ jobs:
         run: |
           Get-ChildItem UptimeWidget-build -Recurse
 
+      - name: dotnet version
+        run: dotnet --version
+
+      - name: Install WiX ClI
+        run: dotnet tool install --global WiX
+        
+      - name: WiX version
+        run: wix --version
+
+
