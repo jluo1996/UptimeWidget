@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-11
+    runs-on: windows-lastest
 
     env:
       Configuration: Release
