@@ -7,6 +7,11 @@ on:
     types:
       - completed
 
+permissions:
+  actions: read
+  contents: read
+
+
 jobs:
   build_installer:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -15,6 +20,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Debug workflow info
+        shell: pwsh
+        run: |
+          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+          echo "Workflow name: ${{ github.event.workflow_run.name }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
 
       - name: Download build artifact
         uses: actions/download-artifact@v4

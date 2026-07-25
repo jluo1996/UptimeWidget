@@ -26,15 +26,12 @@ jobs:
         run: |
           dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
 
-      - name: List all files recursively
-        if: github.ref != 'refs/heads/main'
+      - name: Verify publish files
         shell: pwsh
         run: |
-          Write-Host "Current directory:"
-          Get-Location
-
-          Write-Host "Files and folders:"
-          Get-ChildItem -Path . -Recurse -Force
+          Get-ChildItem `
+            UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/ `
+            -Recurse
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v4
@@ -43,14 +40,3 @@ jobs:
           path: |
             UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/
             !UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/**/*.pdb
-
-      # - name: Install WiX ClI
-      #   run: dotnet tool install --global WiX
-        
-      # - name: WiX version
-      #   run: wix --version
-
-      # - name: Build UptimeWidget Installer
-      #   run: |
-      #     cd UptimeWidgetInstaller
-      #     wix build UptimeWidgetInstaller.wixproj -o ../UptimeWidgetInstaller/bin/Release/UptimeWidgetInstaller.msi
