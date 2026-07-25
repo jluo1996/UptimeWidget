@@ -1,0 +1,37 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Id="ManufactuerPlaceholder.UptimeWidget"
+           Name="UptimeWidget"
+           Manufacturer="ManufactuerPlaceholder"
+           Version="1.0.0"
+           Scope="perUser"
+           UpgradeCode="8F3A2C41-6B7D-4E52-9A1C-2D5F0B9E7A34">
+
+    <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+
+    <!-- Minimal end-user UI so the "launch after install" checkbox can be shown. -->
+    <UI>
+      <ui:WixUI Id="WixUI_Minimal" />
+
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchApplication"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+
+    <!-- Offer to launch the app when the installer finishes. -->
+    <Property Id="WixShellExecTarget" Value="[#UptimeWidget.exe]" />
+    <CustomAction Id="LaunchApplication"
+                  BinaryRef="Wix4UtilCA_X64"
+                  DllEntry="WixShellExec"
+                  Impersonate="yes" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.LaunchApp)" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+
+    <Feature Id="Main">
+      <ComponentGroupRef Id="AppComponents" />
+    </Feature>
+  </Package>
+</Wix>

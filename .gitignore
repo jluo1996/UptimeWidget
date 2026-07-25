@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+**/.vs
+/UptimeWidget/UptimeWidget/bin/
+/UptimeWidget/UptimeWidget/obj/
+*.csproj.user
+*.wixproj.user
+/UptimeWidgetInstaller/UptimeWidgetInstaller/bin
+/UptimeWidgetInstaller/UptimeWidgetInstaller/obj
+
+
+buildInstaller.bat

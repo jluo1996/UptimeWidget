@@ -1,0 +1,31 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
+
+      <!-- Main executable with Start Menu and Desktop shortcuts. -->
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="UptimeWidget.exe" Source="$(var.PayloadDir)UptimeWidget.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="AppProgramMenuFolder"
+                    Name="UptimeWidget"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Advertise="no" />
+          <Shortcut Id="DesktopShortcut"
+                    Directory="DesktopFolder"
+                    Name="UptimeWidget"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Advertise="no" />
+        </File>
+        <!-- Clean up the per-user Start Menu folder on uninstall. -->
+        <RemoveFolder Id="RemoveAppProgramMenuFolder" Directory="AppProgramMenuFolder" On="uninstall" />
+      </Component>
+
+      <!-- Harvest the remaining payload files (everything in the Release folder
+           except the main executable, which is defined above). -->
+      <Files Include="$(var.PayloadDir)**">
+        <Exclude Files="$(var.PayloadDir)UptimeWidget.exe" />
+      </Files>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>
