@@ -26,7 +26,7 @@ jobs:
           dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
 
       - name: Publish artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: UptimeWidget-build-artifact
           path: UptimeWidget/UptimeWidget/bin/$env:PLATFORM/$env:CONFIGURATION/net10.0-windows/
