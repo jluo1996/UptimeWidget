@@ -9,7 +9,7 @@ on:
 env:
   CONFIGURATION: Release
   PLATFORM: x64
-  UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.sln
+  UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
   
 jobs:
   build_UptimeWidget:
