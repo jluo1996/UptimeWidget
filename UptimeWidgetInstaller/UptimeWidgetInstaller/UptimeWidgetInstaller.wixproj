@@ -1,0 +1,35 @@
+﻿<Project Sdk="WixToolset.Sdk/7.0.0">
+	<PropertyGroup>
+		<AcceptEula>wix7</AcceptEula>
+
+		<!-- Always produce an x64 MSI (matches the x64 app payload). -->
+		<InstallerPlatform>x64</InstallerPlatform>
+
+		<!--
+			Per-user installs legitimately place files under the user profile with
+			file keypaths (auto-harvested payload). Suppress the ICE checks that
+			only apply to per-machine installs:
+			  ICE38/ICE43 - user-profile components should use an HKCU registry keypath
+			  ICE64       - user-profile directories must be in the RemoveFile table
+		-->
+		<SuppressIces>ICE38;ICE43;ICE64</SuppressIces>
+
+		<!--
+			PayloadDir is the folder whose contents get packaged into the installer.
+			It defaults to the app's local x64 build output, but is decoupled from the
+			app solution: CI (or a manual build) can override it to point at a
+			downloaded artifact folder, e.g.:
+			    dotnet build UptimeWidgetInstaller.wixproj -p:PayloadDir=C:\path\to\artifact\
+			The trailing backslash is required.
+		-->
+		<PayloadDir Condition="'$(PayloadDir)' == ''">$(MSBuildThisFileDirectory)..\..\UptimeWidget\UptimeWidget\bin\x64\$(Configuration)\net10.0-windows\</PayloadDir>
+
+		<!-- Expose PayloadDir to the WiX preprocessor as $(var.PayloadDir). -->
+		<DefineConstants>$(DefineConstants);PayloadDir=$(PayloadDir)</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
+		<PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <!-- Per-user install location under %LocalAppData% (no admin required). -->
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ManufacturerFolder" Name="!(bind.Property.Manufacturer)">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" />
+      </Directory>
+    </StandardDirectory>
+
+    <!-- Per-user Start Menu location for the application shortcut. -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppProgramMenuFolder" Name="!(bind.Property.ProductName)" />
+    </StandardDirectory>
+
+    <!-- Desktop location for the application shortcut. -->
+    <StandardDirectory Id="DesktopFolder" />
+  </Fragment>
+</Wix>
