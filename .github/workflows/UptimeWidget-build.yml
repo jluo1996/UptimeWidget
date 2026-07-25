@@ -22,8 +22,9 @@ jobs:
         run: dotnet --version
 
       - name: Build UptimeWidget
-        run: dotnet build $UptimeWidget_SOLUTION --configuration $CONFIGURATION
-        
+        run: |
+          dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
+
       - name: Install WiX ClI
         run: dotnet tool install --global WiX
         
