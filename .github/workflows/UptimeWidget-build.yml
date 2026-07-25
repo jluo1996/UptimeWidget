@@ -25,13 +25,19 @@ jobs:
         run: |
           dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
 
-      - name: Install WiX ClI
-        run: dotnet tool install --global WiX
-        
-      - name: WiX version
-        run: wix --version
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: UptimeWidget-build-artifact
+          path: UptimeWidget/UptimeWidget/bin/$env:PLATFORM/$env:CONFIGURATION/net10.0-windows/
 
-      - name: Build UptimeWidget Installer
-        run: |
-          cd UptimeWidgetInstaller
-          wix build UptimeWidgetInstaller.wixproj -o ../UptimeWidgetInstaller/bin/Release/UptimeWidgetInstaller.msi
+      # - name: Install WiX ClI
+      #   run: dotnet tool install --global WiX
+        
+      # - name: WiX version
+      #   run: wix --version
+
+      # - name: Build UptimeWidget Installer
+      #   run: |
+      #     cd UptimeWidgetInstaller
+      #     wix build UptimeWidgetInstaller.wixproj -o ../UptimeWidgetInstaller/bin/Release/UptimeWidgetInstaller.msi
