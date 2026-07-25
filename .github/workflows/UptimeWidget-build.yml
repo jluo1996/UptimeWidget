@@ -27,11 +27,13 @@ jobs:
 
       - name: List all files recursively
         if: github.ref != 'refs/heads/main'
+        shell: pwsh
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Files and folders:"
-          ls -laR
+          Write-Host "Current directory:"
+          Get-Location
+
+          Write-Host "Files and folders:"
+          Get-ChildItem -Path . -Recurse -Force
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v4
