@@ -1,0 +1,65 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <Bundle Name="UptimeWidget"
+          Manufacturer="github@jluo1996"
+          Version="!(bind.packageVersion.UptimeWidgetMsi)"
+          UpgradeCode="B2E7D9C4-3F81-4A56-9C0D-7E15A8B2F3D6">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+          Theme="hyperlinkLicense"
+          LicenseUrl=""
+          SuppressOptionsUI="yes" />
+    </BootstrapperApplication>
+
+    <!--
+      Detect whether the .NET 10 Desktop Runtime (x64) is already installed.
+      The .NET installers record installed shared frameworks under this key.
+      If the Microsoft.WindowsDesktop.App value is present, we skip the runtime.
+    -->
+    <util:RegistrySearch
+        Id="DetectDotNet10Desktop"
+        Root="HKLM"
+        Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App"
+        Value="10.0.0"
+        Result="exists"
+        Variable="DotNet10DesktopPresent"
+        Bitness="always64" />
+
+    <Chain>
+      <!--
+        .NET 10 Desktop Runtime (x64). Downloaded on demand (Compressed="no")
+        from the stable aka.ms redirect. Installed per-machine (requires
+        elevation) only when missing. Permanent + non-vital so uninstalling the
+        app never removes the shared runtime and a download failure does not
+        abort the app install.
+      -->
+      <ExePackage
+          Id="DotNet10DesktopRuntime"
+          DisplayName="Microsoft .NET 10 Desktop Runtime (x64)"
+          Cache="remove"
+          PerMachine="yes"
+          Permanent="yes"
+          Vital="no"
+          DetectCondition="DotNet10DesktopPresent"
+          InstallArguments="/install /quiet /norestart"
+          RepairArguments="/repair /quiet /norestart"
+          UninstallArguments="/uninstall /quiet /norestart">
+        <ExePackagePayload
+            Name="windowsdesktop-runtime-win-x64.exe"
+            SourceFile="$(var.RuntimeExe)"
+            Compressed="no"
+            DownloadUrl="https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe" />
+      </ExePackage>
+
+      <!-- The application itself (unchanged per-user MSI). -->
+      <MsiPackage
+          Id="UptimeWidgetMsi"
+          SourceFile="$(var.MsiPath)"
+          Vital="yes"
+          Compressed="yes" />
+    </Chain>
+  </Bundle>
+</Wix>

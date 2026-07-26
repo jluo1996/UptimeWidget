@@ -1,0 +1,30 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+	<PropertyGroup>
+		<OutputType>Bundle</OutputType>
+		<AcceptEula>wix7</AcceptEula>
+
+		<!-- Bundle exe is x64 to match the app payload/runtime. -->
+		<InstallerPlatform>x64</InstallerPlatform>
+
+		<!--
+			MsiPath  - the built UptimeWidget MSI to wrap (required).
+			RuntimeExe - a local copy of the .NET 10 Desktop Runtime installer,
+			             used only to harvest RemotePayload metadata at build time.
+			             The runtime is still downloaded on demand at install time
+			             (ExePackagePayload Compressed="no" + DownloadUrl).
+			These are supplied by buildInstaller.bat / CI.
+		-->
+		<MsiPath Condition="'$(MsiPath)' == ''">$(MSBuildThisFileDirectory)..\UptimeWidgetInstaller\bin\$(Configuration)\en-US\UptimeWidgetInstaller.msi</MsiPath>
+		<RuntimeExe Condition="'$(RuntimeExe)' == ''">$(MSBuildThisFileDirectory)obj\windowsdesktop-runtime-win-x64.exe</RuntimeExe>
+
+		<DefineConstants>$(DefineConstants);MsiPath=$(MsiPath);RuntimeExe=$(RuntimeExe)</DefineConstants>
+
+		<!-- Optional bundle output file name, supplied by the build. -->
+		<OutputName Condition="'$(InstallerName)' != ''">$(InstallerName)</OutputName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="WixToolset.BootstrapperApplications.wixext" Version="7.0.0" />
+		<PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
+	</ItemGroup>
+</Project>

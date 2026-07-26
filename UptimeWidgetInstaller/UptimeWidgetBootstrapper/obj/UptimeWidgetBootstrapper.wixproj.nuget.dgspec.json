@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj": {}
+  },
+  "projects": {
+    "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj",
+        "projectName": "UptimeWidgetBootstrapper",
+        "projectPath": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj",
+        "packagesPath": "C:\\Users\\m6jialuo\\.nuget\\packages\\",
+        "outputPath": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\obj\\",
+        "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\m6jialuo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "native"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "native": {
+            "framework": "native",
+            "targetAlias": "native",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "native": {
+          "framework": "native",
+          "targetAlias": "native",
+          "dependencies": {
+            "WixToolset.BootstrapperApplications.wixext": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "WixToolset.Util.wixext": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            }
+          }
+        }
+      }
+    }
+  }
+}

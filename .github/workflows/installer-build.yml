@@ -67,7 +67,9 @@ jobs:
             shell: cmd
             run: |
                 if not exist "%CD%\UptimeWidget-build\Installer" mkdir "%CD%\UptimeWidget-build\Installer"
-                xcopy /s /y "%CD%\UptimeWidgetInstaller\UptimeWidgetInstaller\bin\Release\en-US\*.*" "%CD%\UptimeWidget-build\Installer\" >nul
+                robocopy "%CD%\UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release" "%CD%\UptimeWidget-build\Installer" *.exe /XF windowsdesktop-runtime-win-x64.exe
+                if %ERRORLEVEL% GEQ 8 exit /b 1
+                exit /b 0
 
           - name: Verify installer files
             shell: pwsh

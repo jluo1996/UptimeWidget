@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "GoDmRWcDbg8=",
+  "success": true,
+  "projectFilePath": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\m6jialuo\\.nuget\\packages\\wixtoolset.bootstrapperapplications.wixext\\7.0.0\\wixtoolset.bootstrapperapplications.wixext.7.0.0.nupkg.sha512",
+    "C:\\Users\\m6jialuo\\.nuget\\packages\\wixtoolset.util.wixext\\7.0.0\\wixtoolset.util.wixext.7.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

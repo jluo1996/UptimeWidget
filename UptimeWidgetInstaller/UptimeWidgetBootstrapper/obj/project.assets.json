@@ -1,0 +1,119 @@
+{
+  "version": 3,
+  "targets": {
+    "native,Version=v0.0": {
+      "WixToolset.BootstrapperApplications.wixext/7.0.0": {
+        "type": "package",
+        "build": {
+          "build/WixToolset.BootstrapperApplications.wixext.targets": {}
+        }
+      },
+      "WixToolset.Util.wixext/7.0.0": {
+        "type": "package",
+        "build": {
+          "build/WixToolset.Util.wixext.targets": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "WixToolset.BootstrapperApplications.wixext/7.0.0": {
+      "sha512": "0pjlacC2uWUGzQYagFANxQeDhfq+lcwOucI8ztGPFAjfDo6kHasQxS2Vt49MgSnZsa6pynjiSn5JiWFS0Fvwxg==",
+      "type": "package",
+      "path": "wixtoolset.bootstrapperapplications.wixext/7.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "OSMFEULA.txt",
+        "README.md",
+        "build/CheckLicenseAcceptance.targets",
+        "build/WixToolset.BootstrapperApplications.wixext.targets",
+        "icon.png",
+        "wixext7/WixToolset.BootstrapperApplications.wixext.dll",
+        "wixtoolset.bootstrapperapplications.wixext.7.0.0.nupkg.sha512",
+        "wixtoolset.bootstrapperapplications.wixext.nuspec"
+      ]
+    },
+    "WixToolset.Util.wixext/7.0.0": {
+      "sha512": "Ecz/118E0DcVKl/PFe1T6jJieY7RYAGZYfCBwcWodA6taqKx/LgFOev8o1mnNAfP7+NcdpCQNrcoww+EAtzPWQ==",
+      "type": "package",
+      "path": "wixtoolset.util.wixext/7.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "OSMFEULA.txt",
+        "README.md",
+        "build/CheckLicenseAcceptance.targets",
+        "build/WixToolset.Util.wixext.targets",
+        "icon.png",
+        "wixext7/WixToolset.Util.wixext.dll",
+        "wixtoolset.util.wixext.7.0.0.nupkg.sha512",
+        "wixtoolset.util.wixext.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "native,Version=v0.0": [
+      "WixToolset.BootstrapperApplications.wixext >= 7.0.0",
+      "WixToolset.Util.wixext >= 7.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\m6jialuo\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj",
+      "projectName": "UptimeWidgetBootstrapper",
+      "projectPath": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\UptimeWidgetBootstrapper.wixproj",
+      "packagesPath": "C:\\Users\\m6jialuo\\.nuget\\packages\\",
+      "outputPath": "D:\\GIt_SRC\\UptimeWidget\\UptimeWidgetInstaller\\UptimeWidgetBootstrapper\\obj\\",
+      "projectStyle": "PackageReference",
+      "UsingMicrosoftNETSdk": false,
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\m6jialuo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "native"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "native": {
+          "framework": "native",
+          "targetAlias": "native",
+          "projectReferences": {}
+        }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "native": {
+        "framework": "native",
+        "targetAlias": "native",
+        "dependencies": {
+          "WixToolset.BootstrapperApplications.wixext": {
+            "target": "Package",
+            "version": "[7.0.0, )"
+          },
+          "WixToolset.Util.wixext": {
+            "target": "Package",
+            "version": "[7.0.0, )"
+          }
+        }
+      }
+    }
+  }
+}
