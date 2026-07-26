@@ -21,13 +21,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug workflow info
+      - name: List artifacts
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
-          echo "Workflow name: ${{ github.event.workflow_run.name }}"
-          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
-
+          gh run view ${{ github.event.workflow_run.id }} --log
+          gh api `
+            repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts
+            
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
