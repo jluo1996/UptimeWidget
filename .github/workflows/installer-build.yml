@@ -33,6 +33,7 @@ jobs:
         with:
           name: UptimeWidget-build-artifact
           path: UptimeWidget-build
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Show artifact files
         shell: pwsh
