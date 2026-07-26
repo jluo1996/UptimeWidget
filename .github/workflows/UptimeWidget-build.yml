@@ -5,6 +5,11 @@ on:
         branches:
             - main
     workflow_dispatch:
+        inputs:
+            version:
+                description: "Version to build (e.g. 1.2.3). Defaults to 1.0.<run_number>."
+                required: false
+                type: string
 
 env:
     CONFIGURATION: Release
@@ -25,9 +30,18 @@ jobs:
           - name: dotnet version
             run: dotnet --version
 
+          - name: Resolve version
+            id: version
+            shell: pwsh
+            run: |
+                $v = "${{ github.event.inputs.version }}"
+                if ([string]::IsNullOrWhiteSpace($v)) { $v = "1.0.${{ github.run_number }}" }
+                Write-Output "value=$v" >> $env:GITHUB_OUTPUT
+                Write-Output "Building version $v"
+
           - name: Build UptimeWidget
             run: |
-                dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
+                dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION" -p:Version=${{ steps.version.outputs.value }}
 
           - name: Verify publish files
             shell: pwsh

@@ -383,6 +383,19 @@ namespace UptimeWidget
             Render();
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_QUERYENDSESSION = 0x0011;
+            if (m.Msg == WM_QUERYENDSESSION)
+            {
+                // Windows / the installer's Restart Manager is asking us to close.
+                // Agree and let the application exit so the process terminates fully.
+                Application.Exit();
+            }
+
+            base.WndProc(ref m);
+        }
+
         protected override void OnLocationChanged(EventArgs e)
         {
             base.OnLocationChanged(e);

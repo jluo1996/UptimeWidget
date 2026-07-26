@@ -9,13 +9,13 @@ user's profile.
 ### 1. Application Folder
 
 ```
-%LocalAppData%\ManufactuerPlaceholder\UptimeWidget\
+%LocalAppData%\github@jluo1996\UptimeWidget\
 ```
 
 Directory structure defined in `Folders.wxs`:
 
 - `LocalAppDataFolder`
-  - `ManufacturerFolder` — name = `!(bind.Property.Manufacturer)` → `ManufactuerPlaceholder`
+  - `ManufacturerFolder` — name = `!(bind.Property.Manufacturer)` → `github@jluo1996`
     - `INSTALLFOLDER` — name = `!(bind.Property.ProductName)` → `UptimeWidget`
 
 Contents placed here (defined in `AppComponents.wxs`):

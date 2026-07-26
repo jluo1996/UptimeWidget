@@ -1,9 +1,9 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-  <Package Id="ManufactuerPlaceholder.UptimeWidget"
+  <Package Id="jluo1996.UptimeWidget"
            Name="UptimeWidget"
-           Manufacturer="ManufactuerPlaceholder"
-           Version="1.0.0"
+           Manufacturer="github@jluo1996"
+           Version="!(bind.FileVersion.UptimeWidget.exe)"
            Scope="perUser"
            UpgradeCode="8F3A2C41-6B7D-4E52-9A1C-2D5F0B9E7A34">
 

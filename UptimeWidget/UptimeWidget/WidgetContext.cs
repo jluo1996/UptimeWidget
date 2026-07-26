@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using UptimeWidget.Items;
 using UptimeWidget.Models;
 
@@ -48,6 +49,8 @@ namespace UptimeWidget
             var menu = new ContextMenuStrip();
             var settingsMenuItem = new ToolStripMenuItem("Settings…");
             settingsMenuItem.Click += OnOpenSettings;
+            var aboutMenuItem = new ToolStripMenuItem("About…");
+            aboutMenuItem.Click += OnAbout;
             var exitMenuItem = new ToolStripMenuItem("Exit");
             exitMenuItem.Click += OnExit;
 
@@ -55,6 +58,7 @@ namespace UptimeWidget
             menu.Items.Add(_showWidgetMenuItem);
             menu.Items.Add(_lockPositionMenuItem);
             menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(aboutMenuItem);
             menu.Items.Add(exitMenuItem);
 
             _trayIcon = new NotifyIcon
@@ -70,6 +74,16 @@ namespace UptimeWidget
             _widget.StartRefresh(_settings);
             ApplyVisibility(_settings.WidgetVisible);
             StartupManager.SetStartWithWindows(_settings.StartWithWindows);
+
+            // Exit cleanly when Windows or the installer's Restart Manager asks the
+            // app to close (e.g. during uninstall), so the process fully terminates
+            // and releases the single-instance mutex.
+            SystemEvents.SessionEnding += OnSessionEnding;
+        }
+
+        private void OnSessionEnding(object? sender, SessionEndingEventArgs e)
+        {
+            Shutdown();
         }
 
         /// <summary>Builds the widget's item labels from the enabled-items setting (in order).</summary>
@@ -140,8 +154,43 @@ namespace UptimeWidget
             StartupManager.SetStartWithWindows(settings.StartWithWindows);
         }
 
-        private void OnExit(object? sender, EventArgs e)
+        private void OnAbout(object? sender, EventArgs e)
         {
+            string version = "unknown";
+            try
+            {
+                string? exePath = Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(exePath))
+                {
+                    var info = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
+                    version = $"{info.FileMajorPart}.{info.FileMinorPart}.{info.FileBuildPart}";
+                }
+            }
+            catch
+            {
+                // Fall back to "unknown".
+            }
+
+            MessageBox.Show(
+                $"Uptime Widget\nVersion {version}",
+                "About Uptime Widget",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void OnExit(object? sender, EventArgs e) => Shutdown();
+
+        private bool _isShuttingDown;
+
+        private void Shutdown()
+        {
+            if (_isShuttingDown)
+            {
+                return;
+            }
+
+            _isShuttingDown = true;
+            SystemEvents.SessionEnding -= OnSessionEnding;
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
             _widget.StopRefresh();
