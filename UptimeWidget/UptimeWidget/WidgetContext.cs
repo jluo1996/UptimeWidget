@@ -1,6 +1,5 @@
-using System.Drawing;
-using System.Windows.Forms;
 using Microsoft.Win32;
+using System.Diagnostics;
 using UptimeWidget.Items;
 using UptimeWidget.Models;
 
@@ -23,10 +22,10 @@ namespace UptimeWidget
         {
             _settings = AppSettings.Load();
 
-            _availableItems = new List<IWidgetItem>
-            {
+            _availableItems =
+            [
                 new UptimeItem(),
-            };
+            ];
 
             _widget = new WidgetForm();
             _widget.LocationPersisted += OnWidgetMoved;
@@ -46,20 +45,20 @@ namespace UptimeWidget
             };
             _lockPositionMenuItem.Click += OnToggleLockPosition;
 
-            var menu = new ContextMenuStrip();
-            var settingsMenuItem = new ToolStripMenuItem("Settings…");
+            ContextMenuStrip menu = new();
+            ToolStripMenuItem settingsMenuItem = new("Settings…");
             settingsMenuItem.Click += OnOpenSettings;
-            var aboutMenuItem = new ToolStripMenuItem("About…");
+            ToolStripMenuItem aboutMenuItem = new("About…");
             aboutMenuItem.Click += OnAbout;
-            var exitMenuItem = new ToolStripMenuItem("Exit");
+            ToolStripMenuItem exitMenuItem = new("Exit");
             exitMenuItem.Click += OnExit;
 
-            menu.Items.Add(settingsMenuItem);
-            menu.Items.Add(_showWidgetMenuItem);
-            menu.Items.Add(_lockPositionMenuItem);
-            menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add(aboutMenuItem);
-            menu.Items.Add(exitMenuItem);
+            _ = menu.Items.Add(settingsMenuItem);
+            _ = menu.Items.Add(_showWidgetMenuItem);
+            _ = menu.Items.Add(_lockPositionMenuItem);
+            _ = menu.Items.Add(new ToolStripSeparator());
+            _ = menu.Items.Add(aboutMenuItem);
+            _ = menu.Items.Add(exitMenuItem);
 
             _trayIcon = new NotifyIcon
             {
@@ -139,9 +138,9 @@ namespace UptimeWidget
 
         private void OnOpenSettings(object? sender, EventArgs e)
         {
-            using var dialog = new SettingsForm(_settings, _availableItems);
+            using SettingsForm dialog = new(_settings, _availableItems);
             dialog.SettingsApplied += OnSettingsApplied;
-            dialog.ShowDialog();
+            _ = dialog.ShowDialog();
             dialog.SettingsApplied -= OnSettingsApplied;
             _settings.Save();
         }
@@ -162,8 +161,8 @@ namespace UptimeWidget
                 string? exePath = Environment.ProcessPath;
                 if (!string.IsNullOrEmpty(exePath))
                 {
-                    var info = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
-                    version = $"{info.FileMajorPart}.{info.FileMinorPart}.{info.FileBuildPart}";
+                    FileVersionInfo info = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
+                    version = $"{info.FileVersion}";
                 }
             }
             catch
@@ -171,14 +170,17 @@ namespace UptimeWidget
                 // Fall back to "unknown".
             }
 
-            MessageBox.Show(
+            _ = MessageBox.Show(
                 $"Uptime Widget\nVersion {version}",
                 "About Uptime Widget",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
 
-        private void OnExit(object? sender, EventArgs e) => Shutdown();
+        private void OnExit(object? sender, EventArgs e)
+        {
+            Shutdown();
+        }
 
         private bool _isShuttingDown;
 

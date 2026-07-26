@@ -46,7 +46,7 @@ namespace UptimeWidget
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             MinimumSize = new Size(380, 0);
 
-            var layout = new TableLayoutPanel
+            TableLayoutPanel layout = new()
             {
                 Dock = DockStyle.Top,
                 Padding = new Padding(12),
@@ -55,8 +55,8 @@ namespace UptimeWidget
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 GrowStyle = TableLayoutPanelGrowStyle.AddRows,
             };
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
+            _ = layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
+            _ = layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
 
             // Items checklist.
             layout.Controls.Add(new Label { Text = "Items:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
@@ -70,7 +70,7 @@ namespace UptimeWidget
             foreach (IWidgetItem item in _availableItems)
             {
                 bool enabled = _settings.EnabledItems.Contains(item.Id);
-                _itemsList.Items.Add(new ItemEntry(item), enabled);
+                _ = _itemsList.Items.Add(new ItemEntry(item), enabled);
             }
             _itemsList.ItemCheck += (_, _) => BeginInvoke(ApplyLive);
             layout.Controls.Add(_itemsList, 1, 0);
@@ -170,15 +170,15 @@ namespace UptimeWidget
             layout.SetColumnSpan(_startWithWindowsCheck, 2);
 
             // OK / Cancel buttons.
-            var buttonPanel = new FlowLayoutPanel
+            FlowLayoutPanel buttonPanel = new()
             {
                 Dock = DockStyle.Bottom,
                 FlowDirection = FlowDirection.RightToLeft,
                 Padding = new Padding(12),
                 AutoSize = true,
             };
-            var okButton = new Button { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, MinimumSize = new Size(80, 0) };
-            var cancelButton = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, MinimumSize = new Size(80, 0) };
+            Button okButton = new() { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, MinimumSize = new Size(80, 0) };
+            Button cancelButton = new() { Text = "Cancel", DialogResult = DialogResult.Cancel, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, MinimumSize = new Size(80, 0) };
             okButton.Click += (_, _) => { ApplyLive(); _settings.Save(); };
             buttonPanel.Controls.Add(okButton);
             buttonPanel.Controls.Add(cancelButton);
@@ -193,7 +193,7 @@ namespace UptimeWidget
 
         private void PickColor(ref Color target, Button button)
         {
-            using var dlg = new ColorDialog { Color = target, FullOpen = true };
+            using ColorDialog dlg = new() { Color = target, FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
                 target = dlg.Color;
@@ -205,7 +205,7 @@ namespace UptimeWidget
         /// <summary>Writes the current control values into the settings and notifies listeners.</summary>
         private void ApplyLive()
         {
-            var enabled = new List<string>();
+            List<string> enabled = [];
             foreach (object item in _itemsList.CheckedItems)
             {
                 if (item is ItemEntry entry)
@@ -232,11 +232,17 @@ namespace UptimeWidget
 
         private sealed class ItemEntry
         {
-            public ItemEntry(IWidgetItem item) => Item = item;
+            public ItemEntry(IWidgetItem item)
+            {
+                Item = item;
+            }
 
             public IWidgetItem Item { get; }
 
-            public override string ToString() => Item.Name;
+            public override string ToString()
+            {
+                return Item.Name;
+            }
         }
     }
 }

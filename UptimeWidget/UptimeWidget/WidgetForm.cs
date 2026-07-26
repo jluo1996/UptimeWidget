@@ -1,8 +1,6 @@
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using UptimeWidget.Items;
 using UptimeWidget.Models;
 
@@ -18,8 +16,8 @@ namespace UptimeWidget
     /// </summary>
     public sealed class WidgetForm : Form
     {
-        private readonly Dictionary<string, string> _texts = new();
-        private readonly Dictionary<string, TimeSpan> _elapsedSinceRefresh = new();
+        private readonly Dictionary<string, string> _texts = [];
+        private readonly Dictionary<string, TimeSpan> _elapsedSinceRefresh = [];
         private IReadOnlyList<IWidgetItem> _items = Array.Empty<IWidgetItem>();
         private readonly System.Windows.Forms.Timer _timer;
         private TimeSpan _tickInterval = TimeSpan.FromMilliseconds(1000);
@@ -45,15 +43,13 @@ namespace UptimeWidget
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public bool PositionLocked
         {
-            get => _positionLocked;
+            get;
             set
             {
-                _positionLocked = value;
+                field = value;
                 ApplyClickThrough();
             }
         }
-
-        private bool _positionLocked;
 
         public WidgetForm()
         {
@@ -74,7 +70,7 @@ namespace UptimeWidget
             {
                 CreateParams cp = base.CreateParams;
                 cp.ExStyle |= WS_EX_LAYERED;
-                if (_positionLocked)
+                if (PositionLocked)
                 {
                     cp.ExStyle |= WS_EX_TRANSPARENT;
                 }
@@ -91,10 +87,10 @@ namespace UptimeWidget
             }
 
             int exStyle = GetWindowLong(Handle, GWL_EXSTYLE);
-            exStyle = _positionLocked
+            exStyle = PositionLocked
                 ? exStyle | WS_EX_TRANSPARENT
                 : exStyle & ~WS_EX_TRANSPARENT;
-            SetWindowLong(Handle, GWL_EXSTYLE, exStyle);
+            _ = SetWindowLong(Handle, GWL_EXSTYLE, exStyle);
         }
 
         /// <summary>Starts the refresh timer using the settings' tick interval.</summary>
@@ -106,7 +102,10 @@ namespace UptimeWidget
         }
 
         /// <summary>Stops the refresh timer.</summary>
-        public void StopRefresh() => _timer.Stop();
+        public void StopRefresh()
+        {
+            _timer.Stop();
+        }
 
         private void OnTimerTick(object? sender, EventArgs e)
         {
@@ -165,7 +164,7 @@ namespace UptimeWidget
             Point cursor = Cursor.Position;
             int dx = cursor.X - _dragStartCursor.X;
             int dy = cursor.Y - _dragStartCursor.Y;
-            var desired = new Point(_dragStartLocation.X + dx, _dragStartLocation.Y + dy);
+            Point desired = new(_dragStartLocation.X + dx, _dragStartLocation.Y + dy);
             Location = ClampToWorkingArea(desired);
         }
 
@@ -284,10 +283,10 @@ namespace UptimeWidget
             using Font font = BuildFont();
 
             // Measure lines to size the window.
-            var lines = new List<(string text, Size size)>();
+            List<(string text, Size size)> lines = [];
             int contentWidth = 0;
             int contentHeight = 0;
-            using (var measureBmp = new Bitmap(1, 1))
+            using (Bitmap measureBmp = new(1, 1))
             using (Graphics mg = Graphics.FromImage(measureBmp))
             {
                 mg.TextRenderingHint = TextRenderingHint.AntiAlias;
@@ -295,7 +294,7 @@ namespace UptimeWidget
                 {
                     string text = _texts.TryGetValue(item.Id, out string? t) ? t : string.Empty;
                     SizeF sz = mg.MeasureString(text, font);
-                    var size = new Size((int)Math.Ceiling(sz.Width), (int)Math.Ceiling(sz.Height));
+                    Size size = new((int)Math.Ceiling(sz.Width), (int)Math.Ceiling(sz.Height));
                     lines.Add((text, size));
                     contentWidth = Math.Max(contentWidth, size.Width);
                     contentHeight += size.Height;
@@ -310,20 +309,20 @@ namespace UptimeWidget
             int width = Math.Max(1, contentWidth + ContentPadding.Horizontal);
             int height = Math.Max(1, contentHeight + ContentPadding.Vertical);
 
-            using var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            using Bitmap bmp = new(width, height, PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(Color.Transparent);
                 g.TextRenderingHint = TextRenderingHint.AntiAlias;
 
                 int bgAlpha = (int)Math.Round(_backgroundOpacity * 255);
-                using (var bgBrush = new SolidBrush(Color.FromArgb(bgAlpha, _backColor)))
+                using (SolidBrush bgBrush = new(Color.FromArgb(bgAlpha, _backColor)))
                 {
                     g.FillRectangle(bgBrush, 0, 0, width, height);
                 }
 
                 int y = ContentPadding.Top;
-                using var textBrush = new SolidBrush(Color.FromArgb(255, _foreColor));
+                using SolidBrush textBrush = new(Color.FromArgb(255, _foreColor));
                 foreach ((string text, Size size) in lines)
                 {
                     g.DrawString(text, font, textBrush, ContentPadding.Left, y);
@@ -349,11 +348,11 @@ namespace UptimeWidget
                 hBitmap = bmp.GetHbitmap(Color.FromArgb(0));
                 oldBitmap = SelectObject(memDc, hBitmap);
 
-                var size = new SIZE { cx = bmp.Width, cy = bmp.Height };
-                var pointSource = new POINT { x = 0, y = 0 };
-                var topPos = new POINT { x = Left, y = Top };
+                SIZE size = new() { cx = bmp.Width, cy = bmp.Height };
+                POINT pointSource = new() { x = 0, y = 0 };
+                POINT topPos = new() { x = Left, y = Top };
 
-                var blend = new BLENDFUNCTION
+                BLENDFUNCTION blend = new()
                 {
                     BlendOp = AC_SRC_OVER,
                     BlendFlags = 0,
@@ -361,19 +360,19 @@ namespace UptimeWidget
                     AlphaFormat = AC_SRC_ALPHA,
                 };
 
-                UpdateLayeredWindow(
+                _ = UpdateLayeredWindow(
                     Handle, screenDc, ref topPos, ref size, memDc,
                     ref pointSource, 0, ref blend, ULW_ALPHA);
             }
             finally
             {
-                ReleaseDC(IntPtr.Zero, screenDc);
+                _ = ReleaseDC(IntPtr.Zero, screenDc);
                 if (hBitmap != IntPtr.Zero)
                 {
-                    SelectObject(memDc, oldBitmap);
-                    DeleteObject(hBitmap);
+                    _ = SelectObject(memDc, oldBitmap);
+                    _ = DeleteObject(hBitmap);
                 }
-                DeleteDC(memDc);
+                _ = DeleteDC(memDc);
             }
         }
 

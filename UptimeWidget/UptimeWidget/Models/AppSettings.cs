@@ -9,7 +9,7 @@ namespace UptimeWidget.Models
     public sealed class AppSettings
     {
         /// <summary>Item ids that are enabled, in display order (top to bottom).</summary>
-        public List<string> EnabledItems { get; set; } = new() { "uptime" };
+        public List<string> EnabledItems { get; set; } = ["uptime"];
 
         /// <summary>Persisted widget position. Null means auto-position (bottom-right).</summary>
         public int? PositionX { get; set; }
@@ -90,7 +90,7 @@ namespace UptimeWidget.Models
         {
             try
             {
-                Directory.CreateDirectory(SettingsDirectory);
+                _ = Directory.CreateDirectory(SettingsDirectory);
                 string json = JsonSerializer.Serialize(this, JsonOptions);
                 File.WriteAllText(SettingsPath, json);
             }

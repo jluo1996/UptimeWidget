@@ -8,9 +8,9 @@ namespace UptimeWidget
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
-            using var mutex = new Mutex(initiallyOwned: true, MutexName, out bool createdNew);
+            using Mutex mutex = new(initiallyOwned: true, MutexName, out bool createdNew);
             if (!createdNew)
             {
                 // Another instance already owns the mutex; exit quietly.
