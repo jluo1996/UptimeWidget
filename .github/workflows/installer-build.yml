@@ -67,21 +67,32 @@ jobs:
             shell: pwsh
             run: |
               $installerName = "${{ steps.installer_name.outputs.name }}"
-              $sourceDir = Join-Path $PWD "UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release"
+              $exeSourceDir = Join-Path $PWD "UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release"
+              $msiSourceDir = Join-Path $PWD "UptimeWidgetInstaller\UptimeWidgetInstaller\bin\Release\en-US"
               $destDir = Join-Path $PWD "UptimeWidget-build\Installer"
                 
               New-Item -ItemType Directory -Path $destDir -Force | Out-Null
                 
-              $matchingExe = Get-ChildItem -Path $sourceDir -Filter "*.exe" |
+              $matchingExe = Get-ChildItem -Path $exeSourceDir -Filter "*.exe" |
                 Where-Object { $_.Name -eq "$installerName.exe" } |
                 Select-Object -First 1
                 
               if (-not $matchingExe) {
-                Write-Error "No installer executable found matching '$installerName.exe' in $sourceDir"
+                Write-Error "No installer executable found matching '$installerName.exe' in $exeSourceDir"
+                exit 1
+              }
+                
+              $matchingMsi = Get-ChildItem -Path $msiSourceDir -Filter "*.msi" |
+                Where-Object { $_.Name -eq "$installerName.msi" } |
+                Select-Object -First 1
+                
+              if (-not $matchingMsi) {
+                Write-Error "No installer package found matching '$installerName.msi' in $msiSourceDir"
                 exit 1
               }
                 
               Copy-Item -Path $matchingExe.FullName -Destination $destDir -Force
+              Copy-Item -Path $matchingMsi.FullName -Destination $destDir -Force
               Get-ChildItem $destDir -Recurse
 
           - name: Verify installer files

@@ -11,7 +11,8 @@
       <bal:WixStandardBootstrapperApplication
           Theme="hyperlinkLicense"
           LicenseUrl=""
-          SuppressOptionsUI="yes" />
+          SuppressOptionsUI="yes"
+          LaunchTarget="[LocalAppDataFolder]github@jluo1996\UptimeWidget\UptimeWidget.exe" />
     </BootstrapperApplication>
 
     <!--
