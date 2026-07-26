@@ -19,22 +19,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: List artifacts
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show token permissions
         run: |
-          gh run view ${{ github.event.workflow_run.id }} --log
-          gh api `
-            repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts
-            
+          echo "${{ toJson(github.event.workflow_run) }}"
+
       - name: Download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: UptimeWidget-build-artifact
           path: UptimeWidget-build
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Show artifact files
