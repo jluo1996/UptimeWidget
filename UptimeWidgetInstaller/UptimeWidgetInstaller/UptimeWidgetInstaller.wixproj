@@ -26,6 +26,13 @@
 
 		<!-- Expose PayloadDir to the WiX preprocessor as $(var.PayloadDir). -->
 		<DefineConstants>$(DefineConstants);PayloadDir=$(PayloadDir)</DefineConstants>
+
+		<!--
+			Optional installer output file name, supplied by the build (e.g. the CI
+			workflow passes "UptimeWidget <version>"). When empty, WiX keeps its
+			default output name so local/manual builds are unaffected.
+		-->
+		<OutputName Condition="'$(InstallerName)' != ''">$(InstallerName)</OutputName>
 	</PropertyGroup>
 
 	<ItemGroup>
