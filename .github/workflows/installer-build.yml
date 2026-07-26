@@ -82,17 +82,14 @@ jobs:
                 exit 1
               }
                 
-              $matchingMsi = Get-ChildItem -Path $msiSourceDir -Filter "*.msi" |
-                Where-Object { $_.Name -eq "$installerName.msi" } |
-                Select-Object -First 1
-                
-              if (-not $matchingMsi) {
-                Write-Error "No installer package found matching '$installerName.msi' in $msiSourceDir"
-                exit 1
+              if (-not (Test-Path $msiSourceDir)) {
+                  Write-Error "Source directory not found: $msiSourceDir"
+                  exit 1
               }
-                
+
+              Copy-Item -Path (Join-Path $msiSourceDir '*') -Destination $destDir -Recurse -Force
+                              
               Copy-Item -Path $matchingExe.FullName -Destination $destDir -Force
-              Copy-Item -Path $matchingMsi.FullName -Destination $destDir -Force
               Get-ChildItem $destDir -Recurse
 
           - name: Verify installer files
