@@ -15,6 +15,7 @@ env:
     CONFIGURATION: Release
     PLATFORM: x64
     UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
+    MAJOR_VERSION: 0
 
 jobs:
     build_UptimeWidget:
@@ -35,7 +36,7 @@ jobs:
             shell: pwsh
             run: |
                 $v = "${{ github.event.inputs.version }}"
-                if ([string]::IsNullOrWhiteSpace($v)) { $v = "1.0.${{ github.run_number }}" }
+                if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ env.MAJOR_VERSION }}.0.${{ github.run_number }}" }
                 Write-Output "value=$v" >> $env:GITHUB_OUTPUT
                 Write-Output "Building version $v"
 

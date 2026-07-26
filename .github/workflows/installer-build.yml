@@ -54,7 +54,7 @@ jobs:
             run: |
                 $exe = Join-Path $PWD 'UptimeWidget-build\UptimeWidget.exe'
                 $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exe).FileVersion
-                $name = "UptimeWidget $version"
+                $name = "UptimeWidget Installer $version"
                 Write-Host "Installer name: $name"
                 "name=$name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
@@ -64,12 +64,25 @@ jobs:
                 call buildInstaller.bat Release "%CD%\UptimeWidget-build\" "${{ steps.installer_name.outputs.name }}"
 
           - name: Stage installer files
-            shell: cmd
+            shell: pwsh
             run: |
-                if not exist "%CD%\UptimeWidget-build\Installer" mkdir "%CD%\UptimeWidget-build\Installer"
-                robocopy "%CD%\UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release" "%CD%\UptimeWidget-build\Installer" *.exe /XF windowsdesktop-runtime-win-x64.exe
-                if %ERRORLEVEL% GEQ 8 exit /b 1
-                exit /b 0
+              $installerName = "${{ steps.installer_name.outputs.name }}"
+              $sourceDir = Join-Path $PWD "UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release"
+              $destDir = Join-Path $PWD "UptimeWidget-build\Installer"
+                
+              New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                
+              $matchingExe = Get-ChildItem -Path $sourceDir -Filter "*.exe" |
+                Where-Object { $_.Name -eq "$installerName.exe" } |
+                Select-Object -First 1
+                
+              if (-not $matchingExe) {
+                Write-Error "No installer executable found matching '$installerName.exe' in $sourceDir"
+                exit 1
+              }
+                
+              Copy-Item -Path $matchingExe.FullName -Destination $destDir -Force
+              Get-ChildItem $destDir -Recurse
 
           - name: Verify installer files
             shell: pwsh

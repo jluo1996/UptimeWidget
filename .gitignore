@@ -9,3 +9,5 @@
 *.wixproj.user
 /UptimeWidgetInstaller/UptimeWidgetInstaller/bin
 /UptimeWidgetInstaller/UptimeWidgetInstaller/obj
+/UptimeWidgetInstaller/UptimeWidgetBootstrapper/bin
+/UptimeWidgetInstaller/UptimeWidgetBootstrapper/obj
