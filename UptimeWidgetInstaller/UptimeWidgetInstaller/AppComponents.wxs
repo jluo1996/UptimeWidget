@@ -4,7 +4,7 @@
 
       <!-- Main executable with Start Menu and Desktop shortcuts. -->
       <Component Id="MainExecutable" Guid="*">
-        <File Id="UptimeWidget.exe" Source="$(var.PayloadDir)UptimeWidget.exe" KeyPath="yes">
+        <File Id="UptimeWidget.exe" Source="$(var.PayloadDir)\UptimeWidget.exe" KeyPath="yes">
           <Shortcut Id="StartMenuShortcut"
                     Directory="AppProgramMenuFolder"
                     Name="UptimeWidget"
@@ -22,8 +22,8 @@
 
       <!-- Harvest the remaining payload files (everything in the Release folder
            except the main executable, which is defined above). -->
-      <Files Include="$(var.PayloadDir)**">
-        <Exclude Files="$(var.PayloadDir)UptimeWidget.exe" />
+      <Files Include="$(var.PayloadDir)\**">
+        <Exclude Files="$(var.PayloadDir)\UptimeWidget.exe" />
       </Files>
 
     </ComponentGroup>
