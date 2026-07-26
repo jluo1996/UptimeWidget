@@ -1,42 +1,45 @@
 name: Build UptimeWidget
 
-
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
 
 env:
-  CONFIGURATION: Release
-  PLATFORM: x64
-  UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
-  
+    CONFIGURATION: Release
+    PLATFORM: x64
+    UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
+
 jobs:
-  build_UptimeWidget:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        
-      - name: dotnet version
-        run: dotnet --version
+    build_UptimeWidget:
+        runs-on: windows-latest
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v7
+            with:
+                sparse-checkout: |
+                    UptimeWidget
+                sparse-checkout-cone-mode: true
 
-      - name: Build UptimeWidget
-        run: |
-          dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
+          - name: dotnet version
+            run: dotnet --version
 
-      - name: Verify publish files
-        shell: pwsh
-        run: |
-          Get-ChildItem `
-            UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/ `
-            -Recurse
+          - name: Build UptimeWidget
+            run: |
+                dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION"
 
-      - name: Publish artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: UptimeWidget-build-artifact
-          path: |
-            UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/
-            !UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/**/*.pdb
+          - name: Verify publish files
+            shell: pwsh
+            run: |
+                Get-ChildItem `
+                    UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/ `
+                    -Recurse
+
+          - name: Publish artifacts
+            uses: actions/upload-artifact@v7
+            with:
+                name: UptimeWidget-build-artifact
+                path: |
+                    UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/
+                    !UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/**/*.pdb

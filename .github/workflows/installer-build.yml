@@ -1,63 +1,74 @@
 name: Build UptimeWidget Installer
 
 on:
-  workflow_run:
-    workflows:
-      - Build UptimeWidget
-    types:
-      - completed
+    workflow_run:
+        workflows:
+            - Build UptimeWidget
+        types:
+            - completed
 
 permissions:
-  actions: read
-  contents: read
+    actions: read
+    contents: read
 
 
 jobs:
-  build_installer:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: windows-latest
+    build_installer:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: windows-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v7
+            with:
+                sparse-checkout: |
+                    UptimeWidgetInstaller
+                    buildInstaller.bat
+                sparse-checkout-cone-mode: true
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: UptimeWidget-build-artifact
-          path: UptimeWidget-build
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
+          - name: Download build artifact
+            uses: actions/download-artifact@v8
+            with:
+                name: UptimeWidget-build-artifact
+                path: UptimeWidget-build
+                github-token: ${{ secrets.GITHUB_TOKEN }}
+                run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Show artifact files
-        shell: pwsh
-        run: |
-          Get-ChildItem UptimeWidget-build -Recurse
+          - name: Show artifact files
+            shell: pwsh
+            run: |
+                Get-ChildItem UptimeWidget-build -Recurse
 
-      - name: dotnet version
-        run: dotnet --version
+          - name: dotnet version
+            run: dotnet --version
 
-      - name: Install WiX ClI
-        run: dotnet tool install --global WiX
-        
-      - name: WiX version
-        run: wix --version
+          - name: Install WiX ClI
+            run: dotnet tool install --global WiX
+            
+          - name: WiX version
+            run: wix --version
 
-      - name: Build installer
-        shell: cmd
-        run: |
-          call buildInstaller.bat Release "%CD%\UptimeWidget-build\"
+          - name: Build installer
+            shell: cmd
+            run: |
+                call buildInstaller.bat Release "%CD%\UptimeWidget-build\"
 
-      - name: Verify installer files
-        shell: pwsh
-        run: |
-          Get-ChildItem UptimeWidget-build\Installer -Recurse
+          - name: Stage installer files
+            shell: cmd
+            run: |
+                if not exist "%CD%\UptimeWidget-build\Installer" mkdir "%CD%\UptimeWidget-build\Installer"
+                xcopy /s /y "%CD%\UptimeWidgetInstaller\UptimeWidgetInstaller\bin\Release\en-US\*.*" "%CD%\UptimeWidget-build\Installer\" >nul
 
-      - name: Publish installer artifacts
-        uses: actions/upload-artifact@v7
-        with: 
-            name: UptimeWidget-installer-artifact
-            path: |
-                UptimeWidget-build\Installer
+          - name: Verify installer files
+            shell: pwsh
+            run: |
+                Get-ChildItem UptimeWidget-build\Installer -Recurse
+
+          - name: Publish installer artifacts
+            uses: actions/upload-artifact@v7
+            with: 
+                name: UptimeWidget-installer-artifact
+                path: |
+                    UptimeWidget-build\Installer
 
             
