@@ -1,8 +1,0 @@
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\obj\Release\UptimeWidgetBootstrapper.wixproj.CoreCompileInputs.cache
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release\UptimeWidgetBootstrapper.exe
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release\windowsdesktop-runtime-win-x64.exe
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\bin\Release\UptimeWidgetBootstrapper.wixpdb
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\obj\Release\UptimeWidgetBootstrapper.exe
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\obj\Release\UptimeWidgetBootstrapper.wixpdb
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\obj\Release\windowsdesktop-runtime-win-x64.exe
-D:\GIt_SRC\UptimeWidget\UptimeWidgetInstaller\UptimeWidgetBootstrapper\obj\Release\UptimeWidgetBootstrapper.wixproj.BindTracking.txt

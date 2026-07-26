@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)wixtoolset.util.wixext\7.0.0\build\WixToolset.Util.wixext.targets" Condition="Exists('$(NuGetPackageRoot)wixtoolset.util.wixext\7.0.0\build\WixToolset.Util.wixext.targets')" />
-    <Import Project="$(NuGetPackageRoot)wixtoolset.bootstrapperapplications.wixext\7.0.0\build\WixToolset.BootstrapperApplications.wixext.targets" Condition="Exists('$(NuGetPackageRoot)wixtoolset.bootstrapperapplications.wixext\7.0.0\build\WixToolset.BootstrapperApplications.wixext.targets')" />
-  </ImportGroup>
-</Project>
