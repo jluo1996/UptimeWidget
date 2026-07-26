@@ -36,7 +36,7 @@ jobs:
             shell: pwsh
             run: |
                 $v = "${{ github.event.inputs.version }}"
-                if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ env.MAJOR_VERSION }}.0.${{ github.run_number }}" }
+                if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ env.MAJOR_VERSION }}.0.${{ github.run_number }}".${{ github.run_attempt }} }
                 Write-Output "value=$v" >> $env:GITHUB_OUTPUT
                 Write-Output "Building version $v"
 

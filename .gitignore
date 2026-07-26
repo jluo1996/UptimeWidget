@@ -1,7 +1,4 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
+﻿
 **/.vs
 /UptimeWidget/UptimeWidget/bin/
 /UptimeWidget/UptimeWidget/obj/
@@ -11,3 +8,5 @@
 /UptimeWidgetInstaller/UptimeWidgetInstaller/obj
 /UptimeWidgetInstaller/UptimeWidgetBootstrapper/bin
 /UptimeWidgetInstaller/UptimeWidgetBootstrapper/obj
+**/bin/
+**/obj/
