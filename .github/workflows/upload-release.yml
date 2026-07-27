@@ -1,0 +1,82 @@
+name: Upload UptimeWidget Release
+
+on:
+    workflow_run:
+        workflows:
+            - Build UptimeWidget Installer
+        types:
+            - completed
+        branches:
+            - release
+
+permissions:
+    actions: read
+    contents: read
+
+env:
+    INSTALLER_PATH: UptimeWidget-installer-build
+jobs:
+    upload_release:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Download build artifact
+              uses: actions/download-artifact@v8
+              with:
+                    name: UptimeWidget-installer-artifact
+                    path: ${{ env.INSTALLER_PATH }}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
+                    run-id: ${{ github.event.workflow_run.id }}
+            
+            - name: Show artifact files
+              shell: bash
+              run: |
+                    find ${{ env.INSTALLER_PATH }} -type f
+
+            - name: Stage installer file
+              id: stage_installer
+              shell: bash
+              run: |
+                    set -euo pipefail
+
+                    installer_file="$(find ${{ env.INSTALLER_PATH }} -type f -name '*.exe' | head -n 1)"
+                    if [ -z "$installer_file" ]; then
+                      echo "No installer artifact found" >&2
+                      exit 1
+                    fi
+
+                    echo "installer_file=$installer_file" >> "$GITHUB_OUTPUT"
+                    echo "Staged installer file: $installer_file"
+
+            - name: Extract version from installer name
+              id: release_version
+              shell: bash
+              run: |
+                base_name="$(basename "${{ steps.stage_installer.outputs.installer_file }}")"
+                release_name="${base_name/-nightly/}"
+                version="$(echo "$release_name" | sed -E 's/.*UptimeWidget-([0-9]+(\.[0-9]+)+).*/\1/')"
+
+                if [ -z "$version" ]; then
+                  echo "Could not extract version from installer name: $base_name" >&2
+                  exit 1
+                fi
+
+                echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
+                echo "version=$version" >> "$GITHUB_OUTPUT"
+                echo "installer_file=${{ steps.stage_installer.outputs.installer_file }}" >> "$GITHUB_OUTPUT"
+                echo "Extracted version: $version"
+                echo "Release name: $release_name"
+                echo "Installer file: $installer_file"
+
+            - name: Create release
+              uses: softprops/action-gh-release@v3
+              with:
+                    tag_name: v${{ steps.release_version.outputs.version }}
+                    generate_release_notes: true
+                    name: ${{ steps.release_version.outputs.release_name }}
+                    files: ${{ env.INSTALLER_PATH }}/${{ steps.release_version.outputs.installer_file }}
+              env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        

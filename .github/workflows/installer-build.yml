@@ -54,7 +54,7 @@ jobs:
             run: |
                 $exe = Join-Path $PWD 'UptimeWidget-build\UptimeWidget.exe'
                 $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exe).FileVersion
-                $name = "UptimeWidget Installer $version"
+                $name = "UptimeWidget-$version-nightly-Setup"
                 Write-Host "Installer name: $name"
                 "name=$name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
