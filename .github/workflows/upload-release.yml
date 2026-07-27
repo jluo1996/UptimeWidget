@@ -121,6 +121,7 @@ jobs:
               uses: luccas-freitas/delete-older-releases@v0.0.1
               with:
                     owner: ${{ github.repository_owner }}
+                    repos: ${{ github.repository}}
                     keep_latest: 0
                     delete_tag_pattern: '*-nightly*'
                     delete_tags: true
