@@ -107,6 +107,8 @@ jobs:
             
             - name: Delete all releases
               shell: pwsh
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                 $releases = gh release list --limit 1000 --json tagName | ConvertFrom-Json
                 foreach ($release in $releases) {
