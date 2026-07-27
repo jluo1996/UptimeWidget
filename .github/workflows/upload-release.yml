@@ -11,7 +11,7 @@ on:
 
 permissions:
     actions: read
-    contents: read
+    contents: write
 
 env:
     INSTALLER_PATH: UptimeWidget-installer-build
@@ -86,6 +86,7 @@ jobs:
               uses: softprops/action-gh-release@v3
               with:
                     tag_name: v${{ steps.release_version.outputs.version }}
+                    generate_release_notes: true
                     name: ${{ steps.release_version.outputs.release_name }}
                     files: ${{ steps.release_version.outputs.installer_file }}
                     prerelease: ${{ !steps.release_version.outputs.is_official_release }}
