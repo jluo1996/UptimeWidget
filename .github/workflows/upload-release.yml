@@ -15,6 +15,7 @@ permissions:
 
 env:
     INSTALLER_PATH: UptimeWidget-installer-build
+
 jobs:
     upload_release:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -62,20 +63,39 @@ jobs:
                   exit 1
                 fi
 
+                echo "basename=$base_name" >> "$GITHUB_OUTPUT"
                 echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
                 echo "version=$version" >> "$GITHUB_OUTPUT"
                 echo "installer_file=${{ steps.stage_installer.outputs.installer_file }}" >> "$GITHUB_OUTPUT"
                 echo "Extracted version: $version"
                 echo "Release name: $release_name"
-                echo "Installer file: $installer_file"
+                echo "Installer file: ${{ steps.stage_installer.outputs.installer_file }}"
+
+            
+            - name: Show source and target branches
+              run: |
+                echo "Head: ${{ github.ref_name}}"
+                echo "Ref: ${{ github.ref }}"
+                echo "Head: ${{ github.head_ref }}"
+                echo "Base: ${{ github.base_ref }}"
+
+            - name: Determine Official release
+              run: |
+
+            - name: Build release name
+              id: build_release_name
+              shell: bash
+              run: |
+
 
             - name: Create release
+              if: false
               uses: softprops/action-gh-release@v3
               with:
                     tag_name: v${{ steps.release_version.outputs.version }}
                     generate_release_notes: true
                     name: ${{ steps.release_version.outputs.release_name }}
-                    files: ${{ env.INSTALLER_PATH }}/${{ steps.release_version.outputs.installer_file }}
+                    files: ${{ steps.release_version.outputs.installer_file }}
                     prerelease: true
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
