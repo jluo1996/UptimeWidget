@@ -83,7 +83,7 @@ jobs:
               run: |
                 release_name="$BASE_NAME"
 
-                if [[ "${{ github.ref_name }}" == "main" ]]; then
+                if [[ "${{ github.ref_name }}" == "release" ]]; then
                   is_official_release=true
                   release_name=${release_name/-nightly/}
                   
@@ -104,6 +104,26 @@ jobs:
                 echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
                 echo "Tag name: $tag_name"
 
+            
+            - name: Delete all releases
+              shell: pwsh
+              run: |
+                $releases = gh release list --limit 1000 --json tagName | ConvertFrom-Json
+                foreach ($release in $releases) {
+                  Write-Host "Deleting release with tag: $($release.tagName)"
+                  gh release delete $release.tagName --y
+                }
+                
+                git fetch --tags
+                $tags = git tag
+                foreach ($tag in $tags) {
+                  Write-Host "Deleting tag: $tag"
+                  git tag -d $tag
+                  git push origin :refs/tags/$tag
+                }
+
+
+
             - name: Create release
               uses: softprops/action-gh-release@v3
               with:
@@ -116,17 +136,6 @@ jobs:
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Delete older releases
-              if: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
-              uses: luccas-freitas/delete-older-releases@v0.0.1
-              with:
-                    owner: ${{ github.repository_owner }}
-                    repos: ${{ github.repository}}
-                    keep_latest: 0
-                    delete_tag_pattern: '*-nightly*'
-                    delete_tags: true
-              env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
         
