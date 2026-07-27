@@ -6,8 +6,6 @@ on:
             - Build UptimeWidget Installer
         types:
             - completed
-        branches:
-            - main
 
 permissions:
     actions: read
