@@ -104,40 +104,6 @@ jobs:
                 echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
                 echo "Tag name: $tag_name"
 
-            - name: Checkout repository
-              uses: actions/checkout@v7
-              with:
-                fetch-depth: 0
-
-            - name: Delete all releases
-              shell: pwsh
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                $tagPattern = "*-nightly*"
-
-                # Delete matchign releases
-                $releases = gh release list --limit 1000 --json tagName | ConvertFrom-Json
-                foreach ($release in $releases) {
-                  if ($release.tagName -like $tagPattern) {
-                    Write-Host "Deleting release with tag: $($release.tagName)"
-                    gh release delete $release.tagName --y
-                  }
-                }
-                
-                # Delete matching tags
-                git fetch --tags
-                $tags = git tag
-                foreach ($tag in $tags) {
-                  if ($tag -like $tagPattern) {
-                    Write-Host "Deleting tag: $tag"
-                    git tag -d $tag
-                    git push origin :refs/tags/$tag
-                  }
-                }
-
-
-
             - name: Create release
               uses: softprops/action-gh-release@v3
               with:
@@ -151,5 +117,34 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
+            - name: Checkout repository
+              uses: actions/checkout@v7
+              with:
+                fetch-depth: 0
 
+            - name: Delete all releases
+              shell: pwsh
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                $tagPattern = "*"
+                $keep_latest = 1
+
+                $releases = gh release list --limit 1000 --json tagName,createdAt | ConvertFrom-Json
+                $matchingReleases = $releases | Where-Object { $_.tagName -like $tagPattern } | Sort-Object createdAt -Descending
+                $matchingReleasesToDelete = $matchingReleases | Select-Object -Skip $keep_latest
+
+                foreach ($release in $matchingReleasesToDelete) {
+                  Write-Host "Deleting release with tag: $($release.tagName)"
+                  gh release delete $release.tagName --yes --cleanup-tag
+                }
+                
+                git fetch --tags
+                $matchingTags = git for-each-ref --sort=-creatordate --format='%(refname:short)' refs/tags | Where-Object { $_ -like $tagPattern }
+                $tagsToDelete = $matchingTags | Select-Object -Skip $keep_latest
+                foreach ($tag in $tagsToDelete) {
+                  Write-Host "Deleting tag: $tag"
+                  git tag -d $tag
+                  git push origin ":refs/tags/$tag"
+                }
         
