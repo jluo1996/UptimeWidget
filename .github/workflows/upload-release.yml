@@ -7,7 +7,7 @@ on:
         types:
             - completed
         branches:
-            - release
+            - main
 
 permissions:
     actions: read
@@ -76,6 +76,7 @@ jobs:
                     generate_release_notes: true
                     name: ${{ steps.release_version.outputs.release_name }}
                     files: ${{ env.INSTALLER_PATH }}/${{ steps.release_version.outputs.installer_file }}
+                    prerelease: true
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
