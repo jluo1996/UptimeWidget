@@ -19,6 +19,7 @@ env:
     RELEASE_VERSION: ""
     BASE_NAME: ""
     IS_OFFICIAL_RELEASE: false
+    TAG_NAME: ""
 
 jobs:
     upload_release:
@@ -78,7 +79,7 @@ jobs:
                 echo "Base name: $BASE_NAME"
                 echo "Installer file: $INSTALLER_FILE"
 
-            - name: Determine Official release
+            - name: Build release name
               run: |
                 release_name="$BASE_NAME"
 
@@ -93,10 +94,20 @@ jobs:
                 echo "RELEASE_NAME=$release_name" >> "$GITHUB_ENV"
                 echo "IS_OFFICIAL_RELEASE=$is_official_release" >> "$GITHUB_ENV"
 
+            - name: Build tag name
+              run: |
+                tag_name="v$RELEASE_VERSION"
+                if [[ "$IS_OFFICIAL_RELEASE" == "false" ]]; then
+                  tag_name="${tag_name}-nightly"
+                fi
+
+                echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
+                echo "Tag name: $tag_name"
+
             - name: Create release
               uses: softprops/action-gh-release@v3
               with:
-                    tag_name: v${{ env.RELEASE_VERSION }}
+                    tag_name: ${{ env.TAG_NAME }}
                     generate_release_notes: true
                     name: ${{ env.RELEASE_NAME }}
                     files: ${{ env.INSTALLER_FILE }}
@@ -104,5 +115,17 @@ jobs:
                     make_latest: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Delete older releases
+              if: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
+              uses: luccas-freitas/delete-older-releases@v0.0.1
+              with:
+                    owner: ${{ github.repository_owner }}
+                    keep_latest: 0
+                    delete_tag_pattern: '*-nightly*'
+                    delete_tags: true
+              env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
         
