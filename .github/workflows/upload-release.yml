@@ -90,6 +90,7 @@ jobs:
                     name: ${{ steps.release_version.outputs.release_name }}
                     files: ${{ steps.release_version.outputs.installer_file }}
                     prerelease: ${{ !steps.release_version.outputs.is_official_release }}
+                    make_latest: ${{ steps.release_version.outputs.is_official_release }}
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
