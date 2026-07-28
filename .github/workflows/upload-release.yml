@@ -18,33 +18,23 @@ env:
     BASE_NAME: ""
     RELEASE_NAME: ""
     TAG_NAME: ""
+    IS_PRERELEASE: ${{ !startsWith(github.event.workflow_run.head_branch, 'release/') }}
 
 jobs:
-    get_is_prerelease:
-        runs-on: ubuntu-latest
-        outputs:
-            is_prerelease: ${{ steps.set_is_prerelease.outputs.is_prerelease}}
-        steps:
-            - name: Set is_prerelease output
-              if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
-              id: set_is_prerelease
-              run: |
-                echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
-
     upload_release:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        needs: get_is_prerelease
         runs-on: ubuntu-latest
-        env:
-            IS_PRERELEASE: ${{ needs.get_is_prerelease.outputs.is_prerelease }}
-
+        
         steps:
             - name: Debug GitHub context
               run: |
                 echo "github.ref = ${{ github.ref }}"
                 echo "github.ref_name = ${{ github.ref_name }}"
                 echo "github.event_name = ${{ github.event_name }}"
-                
+                echo "github.ref=${{ github.ref }}"
+                echo "workflow_run.head_branch=${{ github.event.workflow_run.head_branch }}"
+                echo "workflow_run.head_sha=${{ github.event.workflow_run.head_sha }}"
+
             - name: Download build artifact
               uses: actions/download-artifact@v8
               with:
