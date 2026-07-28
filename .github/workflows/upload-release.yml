@@ -27,13 +27,10 @@ jobs:
             is_official_release: ${{ steps.set_is_official_release.outputs.is_official_release }}
         steps:
             - name: Set is_official_release output
+              if: startsWith(github.ref, 'refs/heads/release/')
               id: set_is_official_release
               run: |
-                if [[ "${{ github.event.workflow_run.head_branch }}" == "release" ]]; then
-                  echo "is_official_release=true" >> "$GITHUB_OUTPUT"
-                else
-                  echo "is_official_release=false" >> "$GITHUB_OUTPUT"
-                fi
+                echo "is_official_release=true" >> "$GITHUB_OUTPUT"
 
     upload_release:
         if: >
