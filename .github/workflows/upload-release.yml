@@ -117,7 +117,7 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete release
-              uses: jluo1996/delete-releases-action@v0.1
+              uses: jluo1996/delete-releases-action@v0.0.1
               with:
                   tag-pattern: "*"
                   keep-latest: 1
@@ -125,32 +125,4 @@ jobs:
                   repository: ${{ github.repository }}
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-
-            - name: Delete all releases
-              if: false
-              shell: pwsh
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                $tagPattern = "*"
-                $keep_latest = 1
-                $TARGET_REPO = "${{ github.repository }}"
-                
-                $releases = gh release list -R $TARGET_REPO --limit 1000 --json tagName,createdAt | ConvertFrom-Json
-                $matchingReleases = $releases | Where-Object { $_.tagName -like $tagPattern } | Sort-Object createdAt -Descending
-                $matchingReleasesToDelete = $matchingReleases | Select-Object -Skip $keep_latest
-
-                foreach ($release in $matchingReleasesToDelete) {
-                  Write-Host "Deleting release with tag: $($release.tagName)"
-                  gh release delete $release.tagName -R $TARGET_REPO --yes --cleanup-tag
-                }
-                
-                # git fetch --tags
-                # $matchingTags = git for-each-ref --sort=-creatordate --format='%(refname:short)' refs/tags | Where-Object { $_ -like $tagPattern }
-                # $tagsToDelete = $matchingTags | Select-Object -Skip $keep_latest
-                # foreach ($tag in $tagsToDelete) {
-                #   Write-Host "Deleting tag: $tag"
-                #   git tag -d $tag
-                #   git push origin ":refs/tags/$tag"
-                # }
         
