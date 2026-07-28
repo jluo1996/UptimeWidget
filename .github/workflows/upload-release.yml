@@ -19,22 +19,13 @@ env:
     BASE_NAME: ""
     RELEASE_NAME: ""
     TAG_NAME: ""
-    IS_PRERELEASE: ${{ !startsWith(github.ref_name, 'release/') }}
+    IS_PRERELEASE: ${{ !startsWith(github.event.workflow_run.head_branch, 'release/') }}
 
 jobs:
     upload_release:
         runs-on: ubuntu-latest
         
         steps:
-            - name: Debug GitHub context
-              run: |
-                echo "github.ref = ${{ github.ref }}"
-                echo "github.ref_name = ${{ github.ref_name }}"
-                echo "github.event_name = ${{ github.event_name }}"
-                echo "github.ref=${{ github.ref }}"
-                echo "workflow_run.head_branch=${{ github.event.workflow_run.head_branch }}"
-                echo "workflow_run.head_sha=${{ github.event.workflow_run.head_sha }}"
-
             - name: Download build artifact
               uses: actions/download-artifact@v8
               with:
