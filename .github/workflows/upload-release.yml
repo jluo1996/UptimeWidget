@@ -16,6 +16,7 @@ env:
     INSTALLER_FILE: ""
     RELEASE_VERSION: ""
     BASE_NAME: ""
+    RELEASE_NAME: ""
     IS_OFFICIAL_RELEASE: false
     TAG_NAME: ""
 
