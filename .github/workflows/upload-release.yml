@@ -13,10 +13,21 @@ permissions:
 
 env:
     INSTALLER_PATH: UptimeWidget-installer-build
+    INSTALLER_FILE: ""
+    RELEASE_VERSION: ""
+    BASE_NAME: ""
+    IS_OFFICIAL_RELEASE: false
+    TAG_NAME: ""
 
 jobs:
     upload_release:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        if: >
+          ${{
+            github.event.workflow_run.conclusion == 'success' &&
+            ( 
+              github.event.workflow_run.head_branch == 'main' ||
+              github.event.workflow_run.head_branch == 'release'
+            ) }}
         runs-on: ubuntu-latest
 
         steps:
@@ -34,7 +45,6 @@ jobs:
                     find ${{ env.INSTALLER_PATH }} -type f
 
             - name: Stage installer file
-              id: stage_installer
               shell: bash
               run: |
                     set -euo pipefail
@@ -45,14 +55,13 @@ jobs:
                       exit 1
                     fi
 
-                    echo "installer_file=$installer_file" >> "$GITHUB_OUTPUT"
-                    echo "Staged installer file: $installer_file"
+                    echo "INSTALLER_FILE=$installer_file" >> "$GITHUB_ENV"
+                    echo "Staged installer file: $INSTALLER_FILE"
 
-            - name: Extract version from installer name
-              id: release_version
+            - name: Extract base_name, release_version, and installer_file
               shell: bash
               run: |
-                base_name="$(basename "${{ steps.stage_installer.outputs.installer_file }}")"
+                base_name="$(basename "$INSTALLER_FILE")"
                 version="$(echo "$base_name" | sed -E 's/.*UptimeWidget-([0-9]+(\.[0-9]+)+).*/\1/')"
 
                 if [ -z "$version" ]; then
@@ -60,36 +69,59 @@ jobs:
                   exit 1
                 fi
 
-                echo "release_name=$base_name" >> "$GITHUB_OUTPUT"
-                echo "version=$version" >> "$GITHUB_OUTPUT"
-                echo "installer_file=${{ steps.stage_installer.outputs.installer_file }}" >> "$GITHUB_OUTPUT"
-                echo "Extracted version: $version"
-                echo "Release name: $release_name"
-                echo "Installer file: ${{ steps.stage_installer.outputs.installer_file }}"
+                echo "BASE_NAME=$base_name" >> "$GITHUB_ENV"
+                echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+                echo "INSTALLER_FILE=$INSTALLER_FILE" >> "$GITHUB_ENV"
+                
+                echo "Extracted version: $RELEASE_VERSION"
+                echo "Base name: $BASE_NAME"
+                echo "Installer file: $INSTALLER_FILE"
 
-            - name: Determine Official release
+            - name: Build release name
               run: |
+                release_name="$BASE_NAME"
+
                 if [[ "${{ github.ref_name }}" == "release" ]]; then
-                  echo "This is an official release."
-                  echo "is_official_release=true" >> "$GITHUB_OUTPUT"
+                  is_official_release=true
+                  release_name=${release_name/-nightly/}
                   
-                  release_name="${base_name/-nightly/}"
-                  echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
                 else
-                  echo "This is a nightly release."
-                  echo "is_official_release=false" >> "$GITHUB_OUTPUT"
+                  is_official_release=false
                 fi
+
+                echo "RELEASE_NAME=$release_name" >> "$GITHUB_ENV"
+                echo "IS_OFFICIAL_RELEASE=$is_official_release" >> "$GITHUB_ENV"
+
+            - name: Build tag name
+              run: |
+                tag_name="v$RELEASE_VERSION"
+                if [[ "$IS_OFFICIAL_RELEASE" == "false" ]]; then
+                  tag_name="${tag_name}-nightly"
+                fi
+
+                echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
+                echo "Tag name: $tag_name"
 
             - name: Create release
               uses: softprops/action-gh-release@v3
               with:
-                    tag_name: v${{ steps.release_version.outputs.version }}
+                    tag_name: ${{ env.TAG_NAME }}
                     generate_release_notes: true
-                    name: ${{ steps.release_version.outputs.release_name }}
-                    files: ${{ steps.release_version.outputs.installer_file }}
-                    prerelease: ${{ !steps.release_version.outputs.is_official_release }}
-                    make_latest: ${{ steps.release_version.outputs.is_official_release }}
+                    name: ${{ env.RELEASE_NAME }}
+                    files: ${{ env.INSTALLER_FILE }}
+                    prerelease: ${{ env.IS_OFFICIAL_RELEASE == 'false' }}
+                    make_latest: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Delete release
+              if: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
+              uses: jluo1996/delete-releases-action@v1
+              with:
+                  tag-pattern: "*-nightly*"
+                  keep-latest: 0
+                  remove-tags: true
+                  repository: ${{ github.repository }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
         

@@ -4,10 +4,11 @@ on:
     push:
         branches:
             - main
+            - release
     workflow_dispatch:
         inputs:
             version:
-                description: "Version to build (e.g. 1.2.3). Defaults to 1.0.<run_number>."
+                description: "Version to build (e.g. 1.2.3.4)."
                 required: false
                 type: string
 
@@ -16,6 +17,7 @@ env:
     PLATFORM: x64
     UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
     MAJOR_VERSION: 1
+    MINOR_VERSION: 0
 
 jobs:
     build_UptimeWidget:
@@ -36,7 +38,7 @@ jobs:
             shell: pwsh
             run: |
                 $v = "${{ github.event.inputs.version }}"
-                if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ env.MAJOR_VERSION }}.0.${{ github.run_number }}" }
+                if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }}.${{ github.run_attempt }}" }
                 Write-Output "value=$v" >> $env:GITHUB_OUTPUT
                 Write-Output "Building version $v"
 
