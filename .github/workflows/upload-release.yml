@@ -1,11 +1,7 @@
 name: Upload UptimeWidget Release
 
 on:
-    workflow_run:
-        workflows:
-            - Build UptimeWidget Installer
-        types:
-            - completed
+    workflow_call:
 
 permissions:
     actions: read
@@ -18,11 +14,10 @@ env:
     BASE_NAME: ""
     RELEASE_NAME: ""
     TAG_NAME: ""
-    IS_PRERELEASE: ${{ !startsWith(github.event.workflow_run.head_branch, 'release/') }}
+    IS_PRERELEASE: ${{ !startsWith(github.ref_name, 'release/') }}
 
 jobs:
     upload_release:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: ubuntu-latest
         
         steps:

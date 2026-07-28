@@ -104,4 +104,8 @@ jobs:
                 path: |
                     UptimeWidget-build\Installer
 
+    upload_release:
+        needs: build_installer
+        if: success() && github.event.workflow_run.conclusion == 'success'
+        uses: ./.github/workflows/upload-release.yml
             
