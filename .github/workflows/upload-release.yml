@@ -92,7 +92,7 @@ jobs:
 
             - name: Get last non-prerelease release tag
               id: get_last_release_tag
-              uses: actions/github-script@v7
+              uses: actions/github-script@v9
               with:
                 script: |
                   const { data } = await github.rest.repos.listReleases({
