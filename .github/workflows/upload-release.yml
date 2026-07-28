@@ -103,7 +103,7 @@ jobs:
 
                   const release = data.find(r => !r.prerelease);
 
-                  core.setOutput('tag', release.tag_name);
+                  core.setOutput('tag', release?.tag_name ?? '');
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -119,6 +119,7 @@ jobs:
                     name: ${{ env.RELEASE_NAME }}
                     files: ${{ env.INSTALLER_FILE }}
                     prerelease: ${{ env.IS_PRERELEASE == 'true' }}
+                    previous_tag: ${{ steps.get_last_release_tag.outputs.tag }}
                     make_latest: ${{ env.IS_PRERELEASE != 'true' }}
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
