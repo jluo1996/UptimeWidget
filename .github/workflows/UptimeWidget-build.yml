@@ -16,7 +16,7 @@ env:
     CONFIGURATION: Release
     PLATFORM: x64
     UptimeWidget_SOLUTION: UptimeWidget/UptimeWidget.slnx
-    MAJOR_VERSION: 0
+    MAJOR_VERSION: 1
     MINOR_VERSION: 0
 
 jobs:
