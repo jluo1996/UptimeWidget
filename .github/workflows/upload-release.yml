@@ -117,10 +117,10 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete release
-              uses: jluo1996/delete-releases-action@v0.0.1
+              uses: jluo1996/delete-releases-action@v1
               with:
-                  tag-pattern: "*"
-                  keep-latest: 1
+                  tag-pattern: "*-nightly*"
+                  keep-latest: 0
                   remove-tags: true
                   repository: ${{ github.repository }}
                   token: ${{ secrets.GITHUB_TOKEN }}
