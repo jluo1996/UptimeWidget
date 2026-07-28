@@ -39,6 +39,12 @@ jobs:
             IS_PRERELEASE: ${{ needs.get_is_prerelease.outputs.is_prerelease }}
 
         steps:
+            - name: Debug GitHub context
+              run: |
+                echo "github.ref = ${{ github.ref }}"
+                echo "github.ref_name = ${{ github.ref_name }}"
+                echo "github.event_name = ${{ github.event_name }}"
+                
             - name: Download build artifact
               uses: actions/download-artifact@v8
               with:
