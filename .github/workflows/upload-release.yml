@@ -26,10 +26,10 @@ jobs:
             is_prerelease: ${{ steps.set_is_prerelease.outputs.is_prerelease}}
         steps:
             - name: Set is_prerelease output
-              if: startsWith(github.ref, 'refs/heads/release/')
+              if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
               id: set_is_prerelease
               run: |
-                echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+                echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
 
     upload_release:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
