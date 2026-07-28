@@ -127,7 +127,7 @@ jobs:
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Delete release
+            - name: Delete pre-release
               if: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
               uses: jluo1996/delete-releases-action@v1
               with:
