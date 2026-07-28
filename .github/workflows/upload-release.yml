@@ -24,7 +24,7 @@ jobs:
     get_is_official_release:
         runs-on: ubuntu-latest
         outputs:
-            is_official_release: ${{ steps.set_is_official_release.outputs.is_official_release }}
+            is_official_release: ${{ steps.set_is_official_release.outputs.is_official_release || 'false'}}
         steps:
             - name: Set is_official_release output
               if: startsWith(github.ref, 'refs/heads/release/')
@@ -43,7 +43,7 @@ jobs:
         needs: get_is_official_release
         runs-on: ubuntu-latest
         env:
-            IS_OFFICIAL_RELEASE: ${{ needs.get_is_official_release.outputs.is_official_release }}
+            IS_OFFICIAL_RELEASE: ${{ needs.get_is_official_release.outputs.is_official_release || 'false' }}
 
         steps:
             - name: Download build artifact
