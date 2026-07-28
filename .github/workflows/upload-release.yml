@@ -117,6 +117,7 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete release
+              if: ${{ env.IS_OFFICIAL_RELEASE == 'true' }}
               uses: jluo1996/delete-releases-action@v1
               with:
                   tag-pattern: "*-nightly*"
