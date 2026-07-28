@@ -2,6 +2,11 @@ name: Upload UptimeWidget Release
 
 on:
     workflow_call:
+        inputs:
+            artifact_name:
+                description: "The name of the artifact to download from the installer build workflow."
+                required: true
+                type: string
 
 permissions:
     actions: read
@@ -33,10 +38,8 @@ jobs:
             - name: Download build artifact
               uses: actions/download-artifact@v8
               with:
-                    name: UptimeWidget-installer-artifact
+                    name: ${{ inputs.artifact_name }}
                     path: ${{ env.INSTALLER_PATH }}
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
-                    run-id: ${{ github.event.workflow_run.id }}
             
             - name: Show artifact files
               shell: bash

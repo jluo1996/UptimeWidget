@@ -17,6 +17,7 @@ jobs:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: windows-latest
 
+
         steps:
           - name: Checkout code
             uses: actions/checkout@v7
@@ -100,7 +101,7 @@ jobs:
           - name: Publish installer artifacts
             uses: actions/upload-artifact@v7
             with: 
-                name: UptimeWidget-installer-artifact
+                name: UptimeWidget-build-artifact
                 path: |
                     UptimeWidget-build\Installer
 
@@ -108,5 +109,7 @@ jobs:
         needs: build_installer
         if: success() && github.event.workflow_run.conclusion == 'success'
         uses: ./.github/workflows/upload-release.yml
+        with:
+            artifact_name: UptimeWidget-build-artifact
 
             
