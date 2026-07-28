@@ -90,6 +90,27 @@ jobs:
                 echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
                 echo "Tag name: $tag_name"
 
+            - name: Get last non-prerelease release tag
+              id: get_last_release_tag
+              uses: actions/github-script@v7
+              with:
+                script: |
+                  const { data } = await github.rest.repos.listReleases({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    per_page: 100
+                  });
+
+                  const release = data.find(r => !r.prerelease);
+
+                  core.setOutput('tag', release.tag_name);
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Print last non-prerelease release tag
+              run: |
+                echo "Last non-prerelease release tag: ${{ steps.get_last_release_tag.outputs.tag }}"
+
             - name: Create release
               uses: softprops/action-gh-release@v3
               with:
