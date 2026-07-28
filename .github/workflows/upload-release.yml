@@ -118,7 +118,7 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete pre-release
-              if: ${{ env.IS_PRERELEASE == 'true' }}
+              if: ${{ env.IS_PRERELEASE != 'true' }}
               uses: jluo1996/delete-releases-action@v1
               with:
                   tag-pattern: "*-nightly*"
