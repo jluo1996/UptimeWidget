@@ -6,6 +6,9 @@ on:
             - Build UptimeWidget
         types:
             - completed
+        branches:
+            - main
+            - release/**
 
 permissions:
     actions: read
