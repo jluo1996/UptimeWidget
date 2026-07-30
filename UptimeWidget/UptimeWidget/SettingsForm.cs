@@ -109,7 +109,7 @@ namespace UptimeWidget
             {
                 Minimum = 100,
                 Maximum = 60000,
-                Increment = 100,
+                Increment = 1000,
                 Value = Math.Clamp(_settings.UpdateIntervalMs, 100, 60000),
                 Dock = DockStyle.Left,
                 Width = 100,
@@ -213,10 +213,7 @@ namespace UptimeWidget
                     enabled.Add(entry.Item.Id);
                 }
             }
-            if (enabled.Count > 0)
-            {
-                _settings.EnabledItems = enabled;
-            }
+            _settings.EnabledItems = enabled;
 
             _settings.Opacity = _opacityBar.Value / 100.0;
             _settings.BackgroundOpacity = _backgroundOpacityBar.Value / 100.0;

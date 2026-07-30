@@ -3,7 +3,7 @@ namespace UptimeWidget.Items
     /// <summary>
     /// Shows how long the system has been running since last boot.
     /// </summary>
-    public sealed class UptimeItem : IWidgetItem
+    public sealed class SystemUptimeItem : IWidgetItem
     {
         public string Id => "uptime";
 

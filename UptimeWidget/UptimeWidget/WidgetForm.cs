@@ -28,9 +28,11 @@ namespace UptimeWidget
         private float _fontSize = 10f;
         private double _opacity = 0.85;
         private double _backgroundOpacity = 0.85;
+        private bool _alwaysOnTop = true;
 
         private static readonly Padding ContentPadding = new(8, 6, 8, 6);
         private const int LineSpacing = 2;
+        private const string EmptyPlaceholderText = "No items selected — see Settings…";
 
         private bool _dragging;
         private Point _dragStartCursor;
@@ -253,8 +255,36 @@ namespace UptimeWidget
             _fontFamily = settings.FontFamily;
             _fontSize = settings.FontSize;
             TopMost = settings.AlwaysOnTop;
+            _alwaysOnTop = settings.AlwaysOnTop;
+
+            // Setting TopMost = false does not immediately drop the window out of the
+            // topmost z-order band; it lingers above other windows until something else
+            // activates. Explicitly demote it so unchecking "always on top" takes effect now.
+            DemoteIfNotOnTop();
 
             Render();
+        }
+
+        /// <summary>
+        /// Sends the widget to the bottom of the z-order when "always on top" is disabled,
+        /// so it does not cover the currently active window. Safe to call before or after the
+        /// handle exists; it re-applies on <see cref="OnShown"/> for the startup case where the
+        /// window is not yet created/activated when settings are first applied.
+        /// </summary>
+        private void DemoteIfNotOnTop()
+        {
+            if (IsHandleCreated && !_alwaysOnTop)
+            {
+                _ = SetWindowPos(
+                    Handle, HWND_BOTTOM, 0, 0, 0, 0,
+                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            DemoteIfNotOnTop();
         }
 
         private Font BuildFont()
@@ -296,6 +326,15 @@ namespace UptimeWidget
                     SizeF sz = mg.MeasureString(text, font);
                     Size size = new((int)Math.Ceiling(sz.Width), (int)Math.Ceiling(sz.Height));
                     lines.Add((text, size));
+                    contentWidth = Math.Max(contentWidth, size.Width);
+                    contentHeight += size.Height;
+                }
+
+                if (lines.Count == 0)
+                {
+                    SizeF sz = mg.MeasureString(EmptyPlaceholderText, font);
+                    Size size = new((int)Math.Ceiling(sz.Width), (int)Math.Ceiling(sz.Height));
+                    lines.Add((EmptyPlaceholderText, size));
                     contentWidth = Math.Max(contentWidth, size.Width);
                     contentHeight += size.Height;
                 }
@@ -399,7 +438,7 @@ namespace UptimeWidget
         {
             base.OnLocationChanged(e);
             // Layered windows must be repositioned via UpdateLayeredWindow to move the surface.
-            if (IsHandleCreated && _items.Count > 0)
+            if (IsHandleCreated)
             {
                 Render();
             }
@@ -423,6 +462,12 @@ namespace UptimeWidget
         private const int ULW_ALPHA = 0x00000002;
         private const byte AC_SRC_OVER = 0x00;
         private const byte AC_SRC_ALPHA = 0x01;
+
+        private static readonly IntPtr HWND_NOTOPMOST = new(-2);
+        private static readonly IntPtr HWND_BOTTOM = new(1);
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOACTIVATE = 0x0010;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT { public int x; public int y; }
@@ -449,6 +494,10 @@ namespace UptimeWidget
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(
+            IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetDC(IntPtr hWnd);

@@ -24,7 +24,7 @@ namespace UptimeWidget
 
             _availableItems =
             [
-                new UptimeItem(),
+                new SystemUptimeItem(),
             ];
 
             _widget = new WidgetForm();
