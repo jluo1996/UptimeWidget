@@ -91,6 +91,7 @@ jobs:
                 echo "Tag name: $tag_name"
 
             - name: Get last non-prerelease release tag
+              if: ${{ env.IS_PRERELEASE != 'true' }}
               id: get_last_release_tag
               uses: actions/github-script@v9
               with:
