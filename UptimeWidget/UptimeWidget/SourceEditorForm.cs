@@ -15,6 +15,11 @@ namespace UptimeWidget
     {
         private readonly bool _isNew;
 
+        // True once the user has typed their own display name; while false (new
+        // sources only), the display name keeps tracking the selected process.
+        private bool _displayNameUserEdited;
+        private bool _suppressDisplayNameTracking;
+
         private readonly ComboBox _typeCombo;
         private readonly Label _typeDescription;
         private readonly TextBox _displayNameBox;
@@ -103,6 +108,13 @@ namespace UptimeWidget
                 Text = Result.DisplayName,
             };
             layout.Controls.Add(_displayNameBox, 1, 2);
+            _displayNameBox.TextChanged += (_, _) =>
+            {
+                if (!_suppressDisplayNameTracking)
+                {
+                    _displayNameUserEdited = true;
+                }
+            };
 
             // Dynamic parameter panel spanning both columns.
             _paramPanel = new TableLayoutPanel
@@ -196,7 +208,34 @@ namespace UptimeWidget
             // Suggest a display name for new sources when the field is empty.
             if (_isNew && string.IsNullOrWhiteSpace(_displayNameBox.Text) && type is not null)
             {
-                _displayNameBox.Text = type.DisplayName;
+                SetDisplayNameSuggestion(type.DisplayName);
+            }
+        }
+
+        // A display name is auto-suggested only for new sources whose display name
+        // the user has not manually edited, so we never overwrite a user's own text.
+        private bool ShouldSuggestDisplayName() => _isNew && !_displayNameUserEdited;
+
+        private void SetDisplayNameSuggestion(string value)
+        {
+            _suppressDisplayNameTracking = true;
+            try
+            {
+                _displayNameBox.Text = value;
+            }
+            finally
+            {
+                _suppressDisplayNameTracking = false;
+            }
+        }
+
+        private void SuggestDisplayNameFromProcess(ComboBox combo)
+        {
+            if (combo.SelectedItem is string selected
+                && !string.IsNullOrWhiteSpace(selected)
+                && ShouldSuggestDisplayName())
+            {
+                SetDisplayNameSuggestion(selected);
             }
         }
 
@@ -262,6 +301,13 @@ namespace UptimeWidget
                     if (combo.SelectedIndex < 0 && combo.Items.Count > 0)
                     {
                         combo.SelectedIndex = 0;
+                    }
+                    // For the process picker, default the display name to the selected
+                    // process name so new sources get a sensible label automatically.
+                    if (p.Key == "processName")
+                    {
+                        combo.SelectedIndexChanged += (_, _) => SuggestDisplayNameFromProcess(combo);
+                        SuggestDisplayNameFromProcess(combo);
                     }
                     return combo;
 
