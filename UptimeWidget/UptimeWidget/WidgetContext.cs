@@ -16,16 +16,10 @@ namespace UptimeWidget
         private readonly ToolStripMenuItem _lockPositionMenuItem;
         private readonly WidgetForm _widget;
         private readonly AppSettings _settings;
-        private readonly List<IWidgetItem> _availableItems;
 
         public WidgetContext()
         {
             _settings = AppSettings.Load();
-
-            _availableItems =
-            [
-                new SystemUptimeItem(),
-            ];
 
             _widget = new WidgetForm();
             _widget.LocationPersisted += OnWidgetMoved;
@@ -85,11 +79,38 @@ namespace UptimeWidget
             Shutdown();
         }
 
+        /// <summary>Builds the runtime item for every persisted source (id-keyed).</summary>
+        private List<IWidgetItem> BuildAvailableItems()
+        {
+            List<IWidgetItem> items = [];
+            foreach (SourceInstance source in _settings.Sources)
+            {
+                SourceType? type = SourceTypeRegistry.Find(source.TypeId);
+                if (type is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    items.Add(type.Create(source));
+                }
+                catch (Exception ex)
+                {
+                    // Skip a source that fails to build rather than crash the widget.
+                    Debug.WriteLine($"Failed to build source '{source.Id}' ({source.TypeId}): {ex}");
+                }
+            }
+
+            return items;
+        }
+
         /// <summary>Builds the widget's item labels from the enabled-items setting (in order).</summary>
         private void RebuildWidget()
         {
+            List<IWidgetItem> available = BuildAvailableItems();
             List<IWidgetItem> enabled = _settings.EnabledItems
-                .Select(id => _availableItems.FirstOrDefault(i => i.Id == id))
+                .Select(id => available.FirstOrDefault(i => i.Id == id))
                 .Where(i => i is not null)
                 .Cast<IWidgetItem>()
                 .ToList();
@@ -138,7 +159,7 @@ namespace UptimeWidget
 
         private void OnOpenSettings(object? sender, EventArgs e)
         {
-            using SettingsForm dialog = new(_settings, _availableItems);
+            using SettingsForm dialog = new(_settings);
             dialog.SettingsApplied += OnSettingsApplied;
             _ = dialog.ShowDialog();
             dialog.SettingsApplied -= OnSettingsApplied;

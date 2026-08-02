@@ -11,6 +11,13 @@ namespace UptimeWidget.Models
         /// <summary>Item ids that are enabled, in display order (top to bottom).</summary>
         public List<string> EnabledItems { get; set; } = ["uptime"];
 
+        /// <summary>
+        /// User-created sources, each an instance of a registered source type.
+        /// Persisted here and reloaded on every launch. <see cref="EnabledItems"/>
+        /// references these by <see cref="SourceInstance.Id"/>.
+        /// </summary>
+        public List<SourceInstance> Sources { get; set; } = [];
+
         /// <summary>Persisted widget position. Null means auto-position (bottom-right).</summary>
         public int? PositionX { get; set; }
         public int? PositionY { get; set; }
@@ -71,6 +78,7 @@ namespace UptimeWidget.Models
                     AppSettings? loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions);
                     if (loaded is not null)
                     {
+                        loaded.NormalizeSources();
                         return loaded;
                     }
                 }
@@ -80,7 +88,54 @@ namespace UptimeWidget.Models
                 // Corrupt or unreadable file: fall back to defaults.
             }
 
-            return new AppSettings();
+            AppSettings defaults = new();
+            defaults.NormalizeSources();
+            return defaults;
+        }
+
+        /// <summary>
+        /// Ensures <see cref="Sources"/> is consistent with the source-type registry
+        /// and with <see cref="EnabledItems"/>:
+        /// <list type="bullet">
+        /// <item>Always ensures the permanent built-in system-uptime source exists,
+        /// seeding it (enabled by default) when missing.</item>
+        /// <item>Drops sources whose type is no longer registered.</item>
+        /// <item>Removes EnabledItems entries that reference missing sources.</item>
+        /// </list>
+        /// </summary>
+        private void NormalizeSources()
+        {
+            // Drop sources with an unknown type first, so the built-in check below
+            // reflects only valid, registered sources.
+            Sources = Sources
+                .Where(s => SourceTypeRegistry.Find(s.TypeId) is not null)
+                .ToList();
+
+            // System uptime is a permanent built-in: it must always exist and can
+            // never be added or removed by the user. Ensure exactly one uptime
+            // source is present, seeding it at the front when missing.
+            if (!Sources.Any(s => s.TypeId == SourceTypeRegistry.UptimeTypeId))
+            {
+                SourceInstance uptime = new()
+                {
+                    TypeId = SourceTypeRegistry.UptimeTypeId,
+                    DisplayName = "System uptime",
+                };
+                Sources.Insert(0, uptime);
+
+                // Enable it by default on fresh installs, and honor legacy settings
+                // that referenced the built-in via the "uptime" enabled-item id.
+                bool wasEnabled = EnabledItems.Count == 0
+                    || EnabledItems.Contains(SourceTypeRegistry.UptimeTypeId);
+                if (wasEnabled)
+                {
+                    EnabledItems.Insert(0, uptime.Id);
+                }
+            }
+
+            // Keep only enabled ids that still reference an existing source.
+            HashSet<string> valid = Sources.Select(s => s.Id).ToHashSet();
+            EnabledItems = EnabledItems.Where(valid.Contains).ToList();
         }
 
         /// <summary>

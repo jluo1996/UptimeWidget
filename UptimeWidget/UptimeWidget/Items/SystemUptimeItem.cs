@@ -14,7 +14,7 @@ namespace UptimeWidget.Items
         public string GetDisplayText()
         {
             TimeSpan up = TimeSpan.FromMilliseconds(Environment.TickCount64);
-            return $"System: {up.Days}d {up.Hours:00}:{up.Minutes:00}:{up.Seconds:00}";
+            return $"System: {UptimeFormatter.Format(up)}";
         }
     }
 }

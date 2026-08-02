@@ -1,4 +1,3 @@
-using UptimeWidget.Items;
 using UptimeWidget.Models;
 
 namespace UptimeWidget
@@ -11,9 +10,10 @@ namespace UptimeWidget
     internal sealed class SettingsForm : Form
     {
         private readonly AppSettings _settings;
-        private readonly IReadOnlyList<IWidgetItem> _availableItems;
 
         private readonly CheckedListBox _itemsList;
+        private readonly Button _editSourceButton;
+        private readonly Button _removeSourceButton;
         private readonly TrackBar _opacityBar;
         private readonly TrackBar _backgroundOpacityBar;
         private readonly NumericUpDown _intervalUpDown;
@@ -29,10 +29,9 @@ namespace UptimeWidget
         /// <summary>Raised whenever a setting changes, so the widget can update live.</summary>
         public event Action<AppSettings>? SettingsApplied;
 
-        public SettingsForm(AppSettings settings, IReadOnlyList<IWidgetItem> availableItems)
+        public SettingsForm(AppSettings settings)
         {
             _settings = settings;
-            _availableItems = availableItems;
             _foreColor = Color.FromArgb(settings.ForeColorArgb);
             _backColor = Color.FromArgb(settings.BackColorArgb);
 
@@ -58,7 +57,7 @@ namespace UptimeWidget
             _ = layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
             _ = layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
 
-            // Items checklist.
+            // Items checklist with Add/Edit/Remove controls.
             layout.Controls.Add(new Label { Text = "Items:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
             _itemsList = new CheckedListBox
             {
@@ -67,13 +66,40 @@ namespace UptimeWidget
                 Width = 200,
                 CheckOnClick = true,
             };
-            foreach (IWidgetItem item in _availableItems)
+            _itemsList.SelectedIndexChanged += (_, _) => UpdateSourceButtons();
+
+            FlowLayoutPanel sourceButtons = new()
             {
-                bool enabled = _settings.EnabledItems.Contains(item.Id);
-                _ = _itemsList.Items.Add(new ItemEntry(item), enabled);
-            }
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                Margin = new Padding(0, 4, 0, 0),
+            };
+            Button addSourceButton = new() { Text = "Add…", AutoSize = true };
+            addSourceButton.Click += (_, _) => OnAddSource();
+            _editSourceButton = new Button { Text = "Edit…", AutoSize = true };
+            _editSourceButton.Click += (_, _) => OnEditSource();
+            _removeSourceButton = new Button { Text = "Remove", AutoSize = true };
+            _removeSourceButton.Click += (_, _) => OnRemoveSource();
+            sourceButtons.Controls.Add(addSourceButton);
+            sourceButtons.Controls.Add(_editSourceButton);
+            sourceButtons.Controls.Add(_removeSourceButton);
+
+            TableLayoutPanel itemsContainer = new()
+            {
+                ColumnCount = 1,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right,
+                Margin = new Padding(0),
+            };
+            itemsContainer.Controls.Add(_itemsList, 0, 0);
+            itemsContainer.Controls.Add(sourceButtons, 0, 1);
+            layout.Controls.Add(itemsContainer, 1, 0);
+
+            PopulateItemsList();
+            UpdateSourceButtons();
             _itemsList.ItemCheck += (_, _) => BeginInvoke(ApplyLive);
-            layout.Controls.Add(_itemsList, 1, 0);
 
             // Opacity.
             layout.Controls.Add(new Label { Text = "Opacity:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 1);
@@ -210,7 +236,7 @@ namespace UptimeWidget
             {
                 if (item is ItemEntry entry)
                 {
-                    enabled.Add(entry.Item.Id);
+                    enabled.Add(entry.Source.Id);
                 }
             }
             _settings.EnabledItems = enabled;
@@ -229,17 +255,104 @@ namespace UptimeWidget
 
         private sealed class ItemEntry
         {
-            public ItemEntry(IWidgetItem item)
+            public ItemEntry(SourceInstance source)
             {
-                Item = item;
+                Source = source;
             }
 
-            public IWidgetItem Item { get; }
+            public SourceInstance Source { get; }
+
+            public bool IsSystemUptime => Source.TypeId == SourceTypeRegistry.UptimeTypeId;
 
             public override string ToString()
             {
-                return Item.Name;
+                string typeName = SourceTypeRegistry.Find(Source.TypeId)?.DisplayName ?? Source.TypeId;
+                return string.IsNullOrWhiteSpace(Source.DisplayName)
+                    ? typeName
+                    : $"{Source.DisplayName} ({typeName})";
             }
+        }
+
+        /// <summary>Fills the checklist from the persisted sources, preserving checked state.</summary>
+        private void PopulateItemsList()
+        {
+            _itemsList.Items.Clear();
+            foreach (SourceInstance source in _settings.Sources)
+            {
+                bool enabled = _settings.EnabledItems.Contains(source.Id);
+                _ = _itemsList.Items.Add(new ItemEntry(source), enabled);
+            }
+        }
+
+        private void UpdateSourceButtons()
+        {
+            // System uptime is a permanent built-in: it cannot be edited or removed.
+            bool isEditable = _itemsList.SelectedItem is ItemEntry entry && !entry.IsSystemUptime;
+            _editSourceButton.Enabled = isEditable;
+            _removeSourceButton.Enabled = isEditable;
+        }
+
+        private void OnAddSource()
+        {
+            using SourceEditorForm dialog = new(null);
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            _settings.Sources.Add(dialog.Result);
+            _settings.EnabledItems.Add(dialog.Result.Id);
+            PopulateItemsList();
+            UpdateSourceButtons();
+            ApplyLive();
+        }
+
+        private void OnEditSource()
+        {
+            if (_itemsList.SelectedItem is not ItemEntry entry || entry.IsSystemUptime)
+            {
+                return;
+            }
+
+            using SourceEditorForm dialog = new(entry.Source);
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            int index = _settings.Sources.FindIndex(s => s.Id == entry.Source.Id);
+            if (index >= 0)
+            {
+                _settings.Sources[index] = dialog.Result;
+            }
+            PopulateItemsList();
+            UpdateSourceButtons();
+            ApplyLive();
+        }
+
+        private void OnRemoveSource()
+        {
+            if (_itemsList.SelectedItem is not ItemEntry entry || entry.IsSystemUptime)
+            {
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(
+                this,
+                $"Remove \"{entry.Source.DisplayName}\"?",
+                "Remove source",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
+
+            _ = _settings.Sources.RemoveAll(s => s.Id == entry.Source.Id);
+            _ = _settings.EnabledItems.RemoveAll(id => id == entry.Source.Id);
+            PopulateItemsList();
+            UpdateSourceButtons();
+            ApplyLive();
         }
     }
 }
