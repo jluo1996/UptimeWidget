@@ -15,6 +15,13 @@ namespace UptimeWidget.Items
         /// <summary>Current text to render on the widget.</summary>
         string GetDisplayText();
 
+        /// <summary>
+        /// Whether this item is currently running/available, as evaluated during the
+        /// most recent <see cref="GetDisplayText"/> call. Items that are always
+        /// available return <c>true</c>. Used to optionally hide non-running items.
+        /// </summary>
+        bool IsRunning { get; }
+
         /// <summary>How often this item's display text should be refreshed.</summary>
         TimeSpan RefreshInterval { get; }
     }

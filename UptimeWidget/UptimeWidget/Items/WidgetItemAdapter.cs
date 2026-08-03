@@ -23,6 +23,8 @@ namespace UptimeWidget.Items
 
         public TimeSpan RefreshInterval => _inner.RefreshInterval;
 
+        public bool IsRunning => _inner.IsRunning;
+
         public string GetDisplayText()
         {
             return _inner.GetDisplayText();

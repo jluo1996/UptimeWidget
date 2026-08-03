@@ -20,6 +20,7 @@ namespace UptimeWidget
         private readonly NumericUpDown _fontSizeUpDown;
         private readonly CheckBox _alwaysOnTopCheck;
         private readonly CheckBox _startWithWindowsCheck;
+        private readonly CheckBox _hideNonRunningCheck;
         private readonly Button _foreColorButton;
         private readonly Button _backColorButton;
 
@@ -195,6 +196,17 @@ namespace UptimeWidget
             layout.Controls.Add(_startWithWindowsCheck, 0, 8);
             layout.SetColumnSpan(_startWithWindowsCheck, 2);
 
+            // Hide non-running processes.
+            _hideNonRunningCheck = new CheckBox
+            {
+                Text = "Hide non-running processes",
+                Checked = _settings.HideNonRunningProcesses,
+                AutoSize = true,
+            };
+            _hideNonRunningCheck.CheckedChanged += (_, _) => ApplyLive();
+            layout.Controls.Add(_hideNonRunningCheck, 0, 9);
+            layout.SetColumnSpan(_hideNonRunningCheck, 2);
+
             // OK / Cancel buttons.
             FlowLayoutPanel buttonPanel = new()
             {
@@ -249,6 +261,7 @@ namespace UptimeWidget
             _settings.BackColorArgb = _backColor.ToArgb();
             _settings.AlwaysOnTop = _alwaysOnTopCheck.Checked;
             _settings.StartWithWindows = _startWithWindowsCheck.Checked;
+            _settings.HideNonRunningProcesses = _hideNonRunningCheck.Checked;
 
             SettingsApplied?.Invoke(_settings);
         }

@@ -45,10 +45,14 @@ namespace UptimeWidget.Items
 
         public TimeSpan RefreshInterval => TimeSpan.FromSeconds(1);
 
+        public bool IsRunning { get; private set; } = true;
+
         public string GetDisplayText()
         {
             if (string.IsNullOrWhiteSpace(_processName))
             {
+                // Configuration state, not "not running": keep visible.
+                IsRunning = true;
                 return $"{_label}: no process selected";
             }
 
@@ -65,6 +69,7 @@ namespace UptimeWidget.Items
                         && string.Equals(existing.ProcessName, _processName, StringComparison.OrdinalIgnoreCase)
                         && existing.StartTime == cachedStart)
                     {
+                        IsRunning = true;
                         return Format(cachedStart);
                     }
                 }
@@ -123,9 +128,13 @@ namespace UptimeWidget.Items
 
             if (earliestStart is null)
             {
+                // "requires admin" means the process IS running but is unreadable, so
+                // it stays visible; only the true not-running case is marked stopped.
+                IsRunning = sawAnyProcess && sawAccessDenied;
                 return sawAnyProcess && sawAccessDenied ? $"{_label}: requires admin" : $"{_label}: not running";
             }
 
+            IsRunning = true;
             _cachedPid = earliestPid;
             _cachedStart = earliestStart;
             return Format(earliestStart.Value);

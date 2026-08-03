@@ -11,6 +11,8 @@ namespace UptimeWidget.Items
 
         public TimeSpan RefreshInterval => TimeSpan.FromSeconds(1);
 
+        public bool IsRunning => true;
+
         public string GetDisplayText()
         {
             TimeSpan up = TimeSpan.FromMilliseconds(Environment.TickCount64);

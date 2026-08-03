@@ -30,6 +30,7 @@ namespace UptimeWidget
         private double _opacity = 0.85;
         private double _backgroundOpacity = 0.85;
         private bool _alwaysOnTop = true;
+        private bool _hideNonRunning = false;
 
         private static readonly Padding ContentPadding = new(8, 6, 8, 6);
         private const int LineSpacing = 2;
@@ -225,6 +226,7 @@ namespace UptimeWidget
         public void BuildItems(IReadOnlyList<IWidgetItem> items, AppSettings settings)
         {
             _items = items;
+            _hideNonRunning = settings.HideNonRunningProcesses;
             _texts.Clear();
             _elapsedSinceRefresh.Clear();
             foreach (IWidgetItem item in items)
@@ -367,6 +369,11 @@ namespace UptimeWidget
                 mg.TextRenderingHint = TextRenderingHint.AntiAlias;
                 foreach (IWidgetItem item in _items)
                 {
+                    if (_hideNonRunning && !item.IsRunning)
+                    {
+                        continue;
+                    }
+
                     string text = _texts.TryGetValue(item.Id, out string? t) ? t : string.Empty;
                     (string name, string value) = SplitColumns(text);
 

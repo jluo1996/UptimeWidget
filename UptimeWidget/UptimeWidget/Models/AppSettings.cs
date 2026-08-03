@@ -52,6 +52,12 @@ namespace UptimeWidget.Models
         /// <summary>Whether the widget position is locked, preventing drag-to-move.</summary>
         public bool PositionLocked { get; set; } = false;
 
+        /// <summary>
+        /// When true, items that are not currently running (e.g. a monitored
+        /// process showing "not running") are hidden from the widget entirely.
+        /// </summary>
+        public bool HideNonRunningProcesses { get; set; } = false;
+
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true
