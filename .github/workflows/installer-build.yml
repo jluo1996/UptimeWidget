@@ -2,6 +2,11 @@ name: Build UptimeWidget Installer
 
 on:
     workflow_call:
+        inputs:
+            is_prerelease:
+                description: "Whether this build is a pre-release (adds -nightly to the installer name)."
+                required: true
+                type: boolean
 
 permissions:
     actions: read
@@ -48,7 +53,8 @@ jobs:
             run: |
                 $exe = Join-Path $PWD 'UptimeWidget-build\UptimeWidget.exe'
                 $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exe).FileVersion
-                $name = "UptimeWidget-$version-nightly-Setup"
+                $suffix = if ("${{ inputs.is_prerelease }}" -eq "true") { "-nightly" } else { "" }
+                $name = "UptimeWidget-$version$suffix-Setup"
                 Write-Host "Installer name: $name"
                 "name=$name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
@@ -94,6 +100,6 @@ jobs:
           - name: Publish installer artifacts
             uses: actions/upload-artifact@v7
             with: 
-                name: UptimeWidget-build-artifact
+                name: UptimeWidget-installer-artifact
                 path: |
                     UptimeWidget-build\Installer

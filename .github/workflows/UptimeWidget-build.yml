@@ -26,7 +26,17 @@ env:
 jobs:
     build_UptimeWidget:
         runs-on: windows-latest
+        outputs:
+            is_prerelease: ${{ steps.prerelease.outputs.value }}
         steps:
+          - name: Determine is_prerelease
+            id: prerelease
+            shell: pwsh
+            run: |
+                $isPrerelease = if ("${{ github.ref }}" -like "refs/heads/release/*") { "false" } else { "true" }
+                Write-Output "value=$isPrerelease" >> $env:GITHUB_OUTPUT
+                Write-Output "is_prerelease=$isPrerelease"
+
           - name: Checkout code
             uses: actions/checkout@v7
             with:
@@ -68,10 +78,13 @@ jobs:
         needs: build_UptimeWidget
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || inputs.build_installer == true }}
         uses: ./.github/workflows/installer-build.yml
+        with:
+            is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}
 
     upload_release:
-        needs: build_installer
+        needs: [build_UptimeWidget, build_installer]
         if: ${{ success() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) }}
         uses: ./.github/workflows/upload-release.yml
         with:
-            artifact_name: UptimeWidget-build-artifact
+            artifact_name: UptimeWidget-installer-artifact
+            is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}

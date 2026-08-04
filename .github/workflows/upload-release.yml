@@ -7,6 +7,10 @@ on:
                 description: "The name of the artifact to download from the installer build workflow."
                 required: true
                 type: string
+            is_prerelease:
+                description: "Whether this build is a pre-release."
+                required: true
+                type: boolean
 
 permissions:
     actions: read
@@ -19,7 +23,6 @@ env:
     BASE_NAME: ""
     RELEASE_NAME: ""
     TAG_NAME: ""
-    IS_PRERELEASE: ${{ !startsWith(github.event.workflow_run.head_branch, 'release/') }}
 
 jobs:
     upload_release:
@@ -70,28 +73,22 @@ jobs:
                 echo "Base name: $BASE_NAME"
                 echo "Installer file: $INSTALLER_FILE"
 
-            - name: Build release name
+            - name: Extract release name and tag name
               run: |
-                release_name="$BASE_NAME"
+                release_name="${BASE_NAME%-Setup.exe}"
 
-                if [[ "$IS_PRERELEASE" != "true" ]]; then
-                  release_name=${release_name/-nightly/}
-                fi
-
-                echo "RELEASE_NAME=$release_name" >> "$GITHUB_ENV"
-
-            - name: Build tag name
-              run: |
                 tag_name="v$RELEASE_VERSION"
-                if [[ "$IS_PRERELEASE" == "true" ]]; then
+                if [[ "$release_name" == *-nightly ]]; then
                   tag_name="${tag_name}-nightly"
                 fi
 
+                echo "RELEASE_NAME=$release_name" >> "$GITHUB_ENV"
                 echo "TAG_NAME=$tag_name" >> "$GITHUB_ENV"
+                echo "Release name: $release_name"
                 echo "Tag name: $tag_name"
 
             - name: Get last non-prerelease release tag
-              if: ${{ env.IS_PRERELEASE != 'true' }}
+              if: ${{ inputs.is_prerelease != true }}
               id: get_last_release_tag
               uses: actions/github-script@v9
               with:
@@ -119,14 +116,14 @@ jobs:
                     generate_release_notes: true
                     name: ${{ env.RELEASE_NAME }}
                     files: ${{ env.INSTALLER_FILE }}
-                    prerelease: ${{ env.IS_PRERELEASE == 'true' }}
+                    prerelease: ${{ inputs.is_prerelease == true }}
                     previous_tag: ${{ steps.get_last_release_tag.outputs.tag }}
-                    make_latest: ${{ env.IS_PRERELEASE != 'true' }}
+                    make_latest: ${{ inputs.is_prerelease != true }}
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete pre-release
-              if: ${{ env.IS_PRERELEASE != 'true' }}
+              if: ${{ inputs.is_prerelease != true }}
               uses: jluo1996/delete-releases-action@v1
               with:
                   tag-pattern: "*-nightly*"
