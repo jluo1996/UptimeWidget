@@ -77,9 +77,10 @@ namespace UptimeWidget
             };
             foreach (SourceType type in SourceTypeRegistry.Types)
             {
-                // System uptime is a permanent built-in and cannot be added as a
-                // new source, so hide it from the Add dialog's type list.
-                if (_isNew && type.Id == SourceTypeRegistry.UptimeTypeId)
+                // System uptime is a permanent built-in and cannot be added or
+                // assigned by users, so hide it from the type list in both the
+                // Add and Edit dialogs.
+                if (type.Id == SourceTypeRegistry.UptimeTypeId)
                 {
                     continue;
                 }
@@ -181,10 +182,12 @@ namespace UptimeWidget
             CancelButton = cancelButton;
 
             // Select the current (or first) type, which populates the param fields.
+            // The index is resolved against the combo's items rather than the full
+            // registry, since System Uptime is excluded from the combo.
             int index = 0;
-            for (int i = 0; i < SourceTypeRegistry.Types.Count; i++)
+            for (int i = 0; i < _typeCombo.Items.Count; i++)
             {
-                if (SourceTypeRegistry.Types[i].Id == Result.TypeId)
+                if (_typeCombo.Items[i] is SourceType type && type.Id == Result.TypeId)
                 {
                     index = i;
                     break;

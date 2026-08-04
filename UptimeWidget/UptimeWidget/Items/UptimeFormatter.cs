@@ -1,10 +1,12 @@
-using System.Text;
+using System.Globalization;
 
 namespace UptimeWidget.Items
 {
     /// <summary>
-    /// Formats a <see cref="TimeSpan"/> as an uptime string, omitting any
-    /// day/hour/minute/second component whose value is 0.
+    /// Formats a <see cref="TimeSpan"/> as a fixed-width uptime string in the
+    /// form <c>DD:HH:MM:SS</c>. Every component is always present and
+    /// zero-padded so the rendered text keeps a constant character count as
+    /// time progresses, preventing the widget from resizing on each tick.
     /// </summary>
     internal static class UptimeFormatter
     {
@@ -15,28 +17,13 @@ namespace UptimeWidget.Items
                 up = TimeSpan.Zero;
             }
 
-            StringBuilder sb = new();
-            AppendUnit(sb, up.Days, "d");
-            AppendUnit(sb, up.Hours, "h");
-            AppendUnit(sb, up.Minutes, "m");
-            AppendUnit(sb, up.Seconds, "s");
-
-            return sb.Length == 0 ? "0s" : sb.ToString();
-        }
-
-        private static void AppendUnit(StringBuilder sb, int value, string unit)
-        {
-            if (value == 0)
-            {
-                return;
-            }
-
-            if (sb.Length > 0)
-            {
-                _ = sb.Append(' ');
-            }
-
-            _ = sb.Append(value).Append(unit);
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0:00}:{1:00}:{2:00}:{3:00}",
+                up.Days,
+                up.Hours,
+                up.Minutes,
+                up.Seconds);
         }
     }
 }
