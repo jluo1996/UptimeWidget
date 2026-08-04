@@ -1,14 +1,7 @@
 name: Build UptimeWidget Installer
 
 on:
-    workflow_run:
-        workflows:
-            - Build UptimeWidget
-        types:
-            - completed
-        branches:
-            - main
-            - release/**
+    workflow_call:
 
 permissions:
     actions: read
@@ -17,7 +10,6 @@ permissions:
 
 jobs:
     build_installer:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: windows-latest
 
 
@@ -35,8 +27,6 @@ jobs:
             with:
                 name: UptimeWidget-build-artifact
                 path: UptimeWidget-build
-                github-token: ${{ secrets.GITHUB_TOKEN }}
-                run-id: ${{ github.event.workflow_run.id }}
 
           - name: Show artifact files
             shell: pwsh
@@ -107,12 +97,3 @@ jobs:
                 name: UptimeWidget-build-artifact
                 path: |
                     UptimeWidget-build\Installer
-
-    upload_release:
-        needs: build_installer
-        if: success() && github.event.workflow_run.conclusion == 'success'
-        uses: ./.github/workflows/upload-release.yml
-        with:
-            artifact_name: UptimeWidget-build-artifact
-
-            
