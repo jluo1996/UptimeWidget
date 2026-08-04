@@ -34,7 +34,6 @@ namespace UptimeWidget.Models
                         label: "Process",
                         kind: ParameterKind.Choice,
                         required: true,
-                        helpText: "Choose a currently running process to monitor.",
                         choicesProvider: ProcessUptimeItem.GetRunningProcessNames),
                 ],
                 factory: CreateProcessItem),

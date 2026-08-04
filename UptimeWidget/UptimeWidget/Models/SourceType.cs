@@ -12,7 +12,6 @@ namespace UptimeWidget.Models
         Number,
         Bool,
         Choice,
-        FilePath,
     }
 
     /// <summary>
@@ -30,7 +29,6 @@ namespace UptimeWidget.Models
             string? defaultValue = null,
             IReadOnlyList<string>? choices = null,
             string? placeholder = null,
-            string? helpText = null,
             Func<string, string?>? validate = null,
             Func<IReadOnlyList<string>>? choicesProvider = null)
         {
@@ -41,7 +39,6 @@ namespace UptimeWidget.Models
             DefaultValue = defaultValue;
             Choices = choices;
             Placeholder = placeholder;
-            HelpText = helpText;
             _validate = validate;
             ChoicesProvider = choicesProvider;
         }
@@ -69,8 +66,6 @@ namespace UptimeWidget.Models
         public Func<IReadOnlyList<string>>? ChoicesProvider { get; }
 
         public string? Placeholder { get; }
-
-        public string? HelpText { get; }
 
         private readonly Func<string, string?>? _validate;
 

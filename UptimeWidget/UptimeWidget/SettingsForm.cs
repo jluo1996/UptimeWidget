@@ -5,7 +5,8 @@ namespace UptimeWidget
     /// <summary>
     /// Dialog for editing <see cref="AppSettings"/>. Changes are pushed live to the
     /// widget via the <see cref="SettingsApplied"/> event while the dialog is open,
-    /// and saved when the user confirms.
+    /// and saved when the user confirms with OK. If the user cancels, the caller
+    /// reverts the settings to their pre-dialog snapshot.
     /// </summary>
     internal sealed class SettingsForm : Form
     {

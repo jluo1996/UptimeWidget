@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -89,9 +90,10 @@ namespace UptimeWidget.Models
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Corrupt or unreadable file: fall back to defaults.
+                Debug.WriteLine($"AppSettings.Load failed: {ex}");
             }
 
             AppSettings defaults = new();
@@ -145,6 +147,50 @@ namespace UptimeWidget.Models
         }
 
         /// <summary>
+        /// Creates a deep copy of these settings. Used to snapshot state before the
+        /// settings dialog opens so it can be restored if the user cancels.
+        /// </summary>
+        public AppSettings Clone()
+        {
+            AppSettings clone = new();
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        /// <summary>
+        /// Overwrites every field of this instance with the values from
+        /// <paramref name="other"/>, deep-copying the mutable collections. Reverts
+        /// in place so existing references to this instance observe the change.
+        /// </summary>
+        public void CopyFrom(AppSettings other)
+        {
+            EnabledItems = [.. other.EnabledItems];
+            Sources = other.Sources
+                .Select(s => new SourceInstance
+                {
+                    Id = s.Id,
+                    TypeId = s.TypeId,
+                    DisplayName = s.DisplayName,
+                    Parameters = new Dictionary<string, string>(s.Parameters),
+                })
+                .ToList();
+            PositionX = other.PositionX;
+            PositionY = other.PositionY;
+            Opacity = other.Opacity;
+            BackgroundOpacity = other.BackgroundOpacity;
+            FontFamily = other.FontFamily;
+            FontSize = other.FontSize;
+            ForeColorArgb = other.ForeColorArgb;
+            BackColorArgb = other.BackColorArgb;
+            UpdateIntervalMs = other.UpdateIntervalMs;
+            AlwaysOnTop = other.AlwaysOnTop;
+            WidgetVisible = other.WidgetVisible;
+            StartWithWindows = other.StartWithWindows;
+            PositionLocked = other.PositionLocked;
+            HideNonRunningProcesses = other.HideNonRunningProcesses;
+        }
+
+        /// <summary>
         /// Persists settings to disk, creating the directory if needed.
         /// </summary>
         public void Save()
@@ -155,9 +201,10 @@ namespace UptimeWidget.Models
                 string json = JsonSerializer.Serialize(this, JsonOptions);
                 File.WriteAllText(SettingsPath, json);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Best-effort save; ignore IO failures.
+                Debug.WriteLine($"AppSettings.Save failed: {ex}");
             }
         }
     }

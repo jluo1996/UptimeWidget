@@ -29,7 +29,6 @@ namespace UptimeWidget
         private float _fontSize = 10f;
         private double _opacity = 0.85;
         private double _backgroundOpacity = 0.85;
-        private bool _alwaysOnTop = true;
         private bool _hideNonRunning = false;
 
         private static readonly Padding ContentPadding = new(8, 6, 8, 6);
@@ -237,16 +236,6 @@ namespace UptimeWidget
             ApplyAppearance(settings);
         }
 
-        /// <summary>Updates the visible text for a single item.</summary>
-        public void UpdateItemText(string id, string text)
-        {
-            if (_texts.ContainsKey(id))
-            {
-                _texts[id] = text;
-                Render();
-            }
-        }
-
         /// <summary>
         /// Positions the widget. Uses the saved location if present and still on the
         /// primary screen; otherwise anchors to the bottom-right of the primary screen's
@@ -294,7 +283,6 @@ namespace UptimeWidget
             _fontFamily = settings.FontFamily;
             _fontSize = settings.FontSize;
             TopMost = settings.AlwaysOnTop;
-            _alwaysOnTop = settings.AlwaysOnTop;
 
             // Setting TopMost = false does not immediately drop the window out of the
             // topmost z-order band; it lingers above other windows until something else
@@ -312,7 +300,7 @@ namespace UptimeWidget
         /// </summary>
         private void DemoteIfNotOnTop()
         {
-            if (IsHandleCreated && !_alwaysOnTop)
+            if (IsHandleCreated && !TopMost)
             {
                 _ = SetWindowPos(
                     Handle, HWND_BOTTOM, 0, 0, 0, 0,
@@ -569,7 +557,7 @@ namespace UptimeWidget
         protected override void OnLocationChanged(EventArgs e)
         {
             base.OnLocationChanged(e);
-            // Layered windows must be repositioned via UpdateLayeredWindow to move the surface.
+            // Re-render to reposition the layered surface via UpdateLayeredWindow.
             if (IsHandleCreated)
             {
                 Render();
@@ -595,7 +583,6 @@ namespace UptimeWidget
         private const byte AC_SRC_OVER = 0x00;
         private const byte AC_SRC_ALPHA = 0x01;
 
-        private static readonly IntPtr HWND_NOTOPMOST = new(-2);
         private static readonly IntPtr HWND_BOTTOM = new(1);
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOMOVE = 0x0002;

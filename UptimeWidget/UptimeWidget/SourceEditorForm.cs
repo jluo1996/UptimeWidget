@@ -216,8 +216,11 @@ namespace UptimeWidget
         }
 
         // A display name is auto-suggested only for new sources whose display name
-        // the user has not manually edited, so we never overwrite a user's own text.
-        private bool ShouldSuggestDisplayName() => _isNew && !_displayNameUserEdited;
+        // the user has not manually edited.
+        private bool ShouldSuggestDisplayName()
+        {
+            return _isNew && !_displayNameUserEdited;
+        }
 
         private void SetDisplayNameSuggestion(string value)
         {
@@ -313,38 +316,6 @@ namespace UptimeWidget
                         SuggestDisplayNameFromProcess(combo);
                     }
                     return combo;
-
-                case ParameterKind.FilePath:
-                    TableLayoutPanel row = new()
-                    {
-                        ColumnCount = 2,
-                        AutoSize = true,
-                        Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                        Margin = new Padding(0),
-                    };
-                    _ = row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-                    _ = row.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                    TextBox pathBox = new()
-                    {
-                        Text = value,
-                        Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                        Width = 150,
-                        PlaceholderText = p.Placeholder ?? string.Empty,
-                    };
-                    Button browse = new() { Text = "…", AutoSize = true };
-                    browse.Click += (_, _) =>
-                    {
-                        using OpenFileDialog ofd = new();
-                        if (ofd.ShowDialog(this) == DialogResult.OK)
-                        {
-                            pathBox.Text = ofd.FileName;
-                        }
-                    };
-                    row.Controls.Add(pathBox, 0, 0);
-                    row.Controls.Add(browse, 1, 0);
-                    // Tag the container with the text box so we can read it back.
-                    row.Tag = pathBox;
-                    return row;
 
                 default:
                     return new TextBox

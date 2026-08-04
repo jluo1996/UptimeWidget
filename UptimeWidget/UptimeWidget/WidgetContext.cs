@@ -79,7 +79,7 @@ namespace UptimeWidget
             Shutdown();
         }
 
-        /// <summary>Builds the runtime item for every persisted source (id-keyed).</summary>
+        /// <summary>Builds the runtime item for every persisted source.</summary>
         private List<IWidgetItem> BuildAvailableItems()
         {
             List<IWidgetItem> items = [];
@@ -159,10 +159,24 @@ namespace UptimeWidget
 
         private void OnOpenSettings(object? sender, EventArgs e)
         {
+            // Snapshot so a Cancel can revert changes that were applied live.
+            AppSettings snapshot = _settings.Clone();
+
             using SettingsForm dialog = new(_settings);
             dialog.SettingsApplied += OnSettingsApplied;
-            _ = dialog.ShowDialog();
+            DialogResult result = dialog.ShowDialog();
             dialog.SettingsApplied -= OnSettingsApplied;
+
+            if (result == DialogResult.OK)
+            {
+                // OK already saved in the dialog; nothing more to persist.
+                return;
+            }
+
+            // Cancel: restore the pre-dialog state, push it to the widget, and
+            // persist so disk matches the reverted, in-memory settings.
+            _settings.CopyFrom(snapshot);
+            OnSettingsApplied(_settings);
             _settings.Save();
         }
 
