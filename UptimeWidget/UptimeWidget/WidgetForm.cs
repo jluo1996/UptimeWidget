@@ -84,7 +84,7 @@ namespace UptimeWidget
             get
             {
                 CreateParams cp = base.CreateParams;
-                cp.ExStyle |= WS_EX_LAYERED;
+                cp.ExStyle |= WS_EX_LAYERED | WS_EX_TOOLWINDOW;
                 if (PositionLocked)
                 {
                     cp.ExStyle |= WS_EX_TRANSPARENT;
@@ -577,6 +577,7 @@ namespace UptimeWidget
         // --- Native interop for layered window compositing ---
 
         private const int WS_EX_LAYERED = 0x00080000;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int GWL_EXSTYLE = -20;
         private const int ULW_ALPHA = 0x00000002;
