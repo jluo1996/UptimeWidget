@@ -76,14 +76,14 @@ jobs:
 
     build_installer:
         needs: build_UptimeWidget
-        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || inputs.build_installer == true }}
+        if: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true) }}
         uses: ./.github/workflows/installer-build.yml
         with:
             is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}
 
     upload_release:
         needs: [build_UptimeWidget, build_installer]
-        if: ${{ success() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) }}
+        if: ${{ success() && ((github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true)) }}
         uses: ./.github/workflows/upload-release.yml
         with:
             artifact_name: UptimeWidget-installer-artifact
