@@ -84,7 +84,7 @@ jobs:
 
     upload_release:
         needs: [build_UptimeWidget, build_installer]
-        if: ${{ success() && ((github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true)) }}
+        if: ${{ success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) }}
         uses: ./.github/workflows/upload-release.yml
         with:
             artifact_name: UptimeWidget-installer-artifact
