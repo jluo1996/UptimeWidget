@@ -3,7 +3,8 @@ name: Build UptimeWidget
 on:
     push:
         branches:
-            - "**"
+            - main
+            - release/**
     workflow_dispatch:
         inputs:
             build_installer:
