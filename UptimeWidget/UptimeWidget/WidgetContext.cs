@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using UptimeWidget.Items;
 using UptimeWidget.Models;
+using UptimeWidget.Update;
 
 namespace UptimeWidget
 {
@@ -16,6 +17,7 @@ namespace UptimeWidget
         private readonly ToolStripMenuItem _lockPositionMenuItem;
         private readonly WidgetForm _widget;
         private readonly AppSettings _settings;
+        private readonly UpdateService _updateService = new();
 
         public WidgetContext()
         {
@@ -42,6 +44,8 @@ namespace UptimeWidget
             ContextMenuStrip menu = new();
             ToolStripMenuItem settingsMenuItem = new("Settings…");
             settingsMenuItem.Click += OnOpenSettings;
+            ToolStripMenuItem checkUpdatesMenuItem = new("Check for updates…");
+            checkUpdatesMenuItem.Click += OnCheckForUpdates;
             ToolStripMenuItem aboutMenuItem = new("About…");
             aboutMenuItem.Click += OnAbout;
             ToolStripMenuItem exitMenuItem = new("Exit");
@@ -51,6 +55,7 @@ namespace UptimeWidget
             _ = menu.Items.Add(_showWidgetMenuItem);
             _ = menu.Items.Add(_lockPositionMenuItem);
             _ = menu.Items.Add(new ToolStripSeparator());
+            _ = menu.Items.Add(checkUpdatesMenuItem);
             _ = menu.Items.Add(aboutMenuItem);
             _ = menu.Items.Add(exitMenuItem);
 
@@ -72,6 +77,9 @@ namespace UptimeWidget
             // app to close (e.g. during uninstall), so the process fully terminates
             // and releases the single-instance mutex.
             SystemEvents.SessionEnding += OnSessionEnding;
+
+            // Fire-and-forget startup update check; never blocks or delays the widget.
+            _ = CheckForUpdatesAsync(userInitiated: false);
         }
 
         private void OnSessionEnding(object? sender, SessionEndingEventArgs e)
@@ -210,6 +218,103 @@ namespace UptimeWidget
                 "About Uptime Widget",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+        }
+
+        private bool _updateCheckInProgress;
+
+        private async void OnCheckForUpdates(object? sender, EventArgs e)
+        {
+            await CheckForUpdatesAsync(userInitiated: true);
+        }
+
+        /// <summary>
+        /// Checks GitHub for a newer release. When <paramref name="userInitiated"/> is
+        /// true, results (including "up to date" and errors) are surfaced via message
+        /// boxes; when false (startup), only an available update prompts the user and
+        /// everything else stays silent.
+        /// </summary>
+        private async Task CheckForUpdatesAsync(bool userInitiated)
+        {
+            if (_updateCheckInProgress)
+            {
+                return;
+            }
+
+            _updateCheckInProgress = true;
+            try
+            {
+                UpdateCheckResult result = await _updateService.CheckForUpdatesAsync(
+                    _settings.IncludePrereleaseUpdates);
+
+                if (_isShuttingDown)
+                {
+                    return;
+                }
+
+                switch (result.Status)
+                {
+                    case UpdateStatus.UpdateAvailable:
+                        PromptAndInstall(result);
+                        break;
+
+                    case UpdateStatus.UpToDate when userInitiated:
+                        _ = MessageBox.Show(
+                            $"You're running the latest version ({result.LatestVersion}).",
+                            "Check for updates",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                        break;
+
+                    case UpdateStatus.Failed when userInitiated:
+                        _ = MessageBox.Show(
+                            $"Could not check for updates.\n\n{result.Error}",
+                            "Check for updates",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                        break;
+                }
+            }
+            finally
+            {
+                _updateCheckInProgress = false;
+            }
+        }
+
+        private async void PromptAndInstall(UpdateCheckResult result)
+        {
+            Version? current = UpdateService.GetCurrentVersion();
+            string prereleaseNote = result.IsPrerelease ? " (prerelease)" : string.Empty;
+            DialogResult choice = MessageBox.Show(
+                $"A new version of UptimeWidget is available.\n\n" +
+                $"Current version: {current}\n" +
+                $"New version: {result.LatestVersion}{prereleaseNote}\n\n" +
+                "Download and install it now?",
+                "Update available",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (choice != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                string installerPath = await _updateService.DownloadInstallerAsync(
+                    result.DownloadUrl!, result.AssetName!);
+
+                UpdateService.LaunchInstaller(installerPath);
+                Shutdown();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Update download/launch failed: {ex}");
+                _ = MessageBox.Show(
+                    $"The update could not be downloaded or started.\n\n{ex.Message}",
+                    "Update failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         private void OnExit(object? sender, EventArgs e)

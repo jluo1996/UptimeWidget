@@ -11,7 +11,14 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <Platforms>x64</Platforms>
     <Version>0.0.0.1</Version>
+    <!-- GitHub "owner/repo" used for update checks. Overridable at build time:
+         dotnet build -p:UpdateRepo=owner/name (CI passes ${{ github.repository }}). -->
+    <UpdateRepo Condition="'$(UpdateRepo)' == ''">jluo1996/UptimeWidget</UpdateRepo>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="UpdateRepo" Value="$(UpdateRepo)" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="app.ico">

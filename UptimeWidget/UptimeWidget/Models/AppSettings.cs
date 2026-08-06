@@ -50,6 +50,12 @@ namespace UptimeWidget.Models
 
         public bool StartWithWindows { get; set; } = false;
 
+        /// <summary>
+        /// When true, update checks also consider prerelease (nightly) GitHub
+        /// releases; otherwise only stable releases are offered.
+        /// </summary>
+        public bool IncludePrereleaseUpdates { get; set; } = false;
+
         /// <summary>Whether the widget position is locked, preventing drag-to-move.</summary>
         public bool PositionLocked { get; set; } = false;
 
@@ -186,6 +192,7 @@ namespace UptimeWidget.Models
             AlwaysOnTop = other.AlwaysOnTop;
             WidgetVisible = other.WidgetVisible;
             StartWithWindows = other.StartWithWindows;
+            IncludePrereleaseUpdates = other.IncludePrereleaseUpdates;
             PositionLocked = other.PositionLocked;
             HideNonRunningProcesses = other.HideNonRunningProcesses;
         }

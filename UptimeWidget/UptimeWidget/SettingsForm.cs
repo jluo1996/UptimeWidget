@@ -33,6 +33,7 @@ namespace UptimeWidget
         private readonly CheckBox _alwaysOnTopCheck;
         private readonly CheckBox _startWithWindowsCheck;
         private readonly CheckBox _hideNonRunningCheck;
+        private readonly CheckBox _includePrereleaseCheck;
         private readonly Button _foreColorButton;
         private readonly Button _backColorButton;
 
@@ -238,6 +239,17 @@ namespace UptimeWidget
             layout.Controls.Add(_hideNonRunningCheck, 0, 9);
             layout.SetColumnSpan(_hideNonRunningCheck, 2);
 
+            // Include prerelease updates.
+            _includePrereleaseCheck = new CheckBox
+            {
+                Text = "Include prerelease updates",
+                Checked = _settings.IncludePrereleaseUpdates,
+                AutoSize = true,
+            };
+            _includePrereleaseCheck.CheckedChanged += (_, _) => ApplyLive();
+            layout.Controls.Add(_includePrereleaseCheck, 0, 10);
+            layout.SetColumnSpan(_includePrereleaseCheck, 2);
+
             // OK / Cancel buttons.
             FlowLayoutPanel buttonPanel = new()
             {
@@ -376,6 +388,7 @@ namespace UptimeWidget
             _settings.AlwaysOnTop = _alwaysOnTopCheck.Checked;
             _settings.StartWithWindows = _startWithWindowsCheck.Checked;
             _settings.HideNonRunningProcesses = _hideNonRunningCheck.Checked;
+            _settings.IncludePrereleaseUpdates = _includePrereleaseCheck.Checked;
 
             SettingsApplied?.Invoke(_settings);
         }
