@@ -56,6 +56,13 @@ namespace UptimeWidget.Models
         /// </summary>
         public bool IncludePrereleaseUpdates { get; set; } = false;
 
+        /// <summary>
+        /// When true, the app automatically checks for updates on startup;
+        /// otherwise the startup check is skipped. Manual update checks are
+        /// unaffected by this setting.
+        /// </summary>
+        public bool CheckForUpdatesOnStartup { get; set; } = false;
+
         /// <summary>Whether the widget position is locked, preventing drag-to-move.</summary>
         public bool PositionLocked { get; set; } = false;
 
@@ -193,6 +200,7 @@ namespace UptimeWidget.Models
             WidgetVisible = other.WidgetVisible;
             StartWithWindows = other.StartWithWindows;
             IncludePrereleaseUpdates = other.IncludePrereleaseUpdates;
+            CheckForUpdatesOnStartup = other.CheckForUpdatesOnStartup;
             PositionLocked = other.PositionLocked;
             HideNonRunningProcesses = other.HideNonRunningProcesses;
         }

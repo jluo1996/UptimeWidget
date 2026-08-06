@@ -34,6 +34,7 @@ namespace UptimeWidget
         private readonly CheckBox _startWithWindowsCheck;
         private readonly CheckBox _hideNonRunningCheck;
         private readonly CheckBox _includePrereleaseCheck;
+        private readonly CheckBox _checkForUpdatesCheck;
         private readonly Button _foreColorButton;
         private readonly Button _backColorButton;
 
@@ -239,6 +240,17 @@ namespace UptimeWidget
             layout.Controls.Add(_hideNonRunningCheck, 0, 9);
             layout.SetColumnSpan(_hideNonRunningCheck, 2);
 
+            // Automatically check for updates on startup.
+            _checkForUpdatesCheck = new CheckBox
+            {
+                Text = "Automatically check for updates",
+                Checked = _settings.CheckForUpdatesOnStartup,
+                AutoSize = true,
+            };
+            _checkForUpdatesCheck.CheckedChanged += (_, _) => ApplyLive();
+            layout.Controls.Add(_checkForUpdatesCheck, 0, 10);
+            layout.SetColumnSpan(_checkForUpdatesCheck, 2);
+
             // Include prerelease updates.
             _includePrereleaseCheck = new CheckBox
             {
@@ -247,7 +259,7 @@ namespace UptimeWidget
                 AutoSize = true,
             };
             _includePrereleaseCheck.CheckedChanged += (_, _) => ApplyLive();
-            layout.Controls.Add(_includePrereleaseCheck, 0, 10);
+            layout.Controls.Add(_includePrereleaseCheck, 0, 11);
             layout.SetColumnSpan(_includePrereleaseCheck, 2);
 
             // OK / Cancel buttons.
@@ -389,6 +401,7 @@ namespace UptimeWidget
             _settings.StartWithWindows = _startWithWindowsCheck.Checked;
             _settings.HideNonRunningProcesses = _hideNonRunningCheck.Checked;
             _settings.IncludePrereleaseUpdates = _includePrereleaseCheck.Checked;
+            _settings.CheckForUpdatesOnStartup = _checkForUpdatesCheck.Checked;
 
             SettingsApplied?.Invoke(_settings);
         }

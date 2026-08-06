@@ -79,7 +79,11 @@ namespace UptimeWidget
             SystemEvents.SessionEnding += OnSessionEnding;
 
             // Fire-and-forget startup update check; never blocks or delays the widget.
-            _ = CheckForUpdatesAsync(userInitiated: false);
+            // Only runs when the user has enabled automatic update checks.
+            if (_settings.CheckForUpdatesOnStartup)
+            {
+                _ = CheckForUpdatesAsync(userInitiated: false);
+            }
         }
 
         private void OnSessionEnding(object? sender, SessionEndingEventArgs e)
