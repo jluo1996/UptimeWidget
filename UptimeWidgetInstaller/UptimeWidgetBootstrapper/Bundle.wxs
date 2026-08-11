@@ -10,10 +10,19 @@
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication
           Theme="hyperlinkLicense"
+          ThemeFile="Theme.xml"
+          LocalizationFile="Theme.wxl"
           LicenseUrl=""
           SuppressOptionsUI="yes"
           LaunchTarget="[LocalAppDataFolder]github@jluo1996\UptimeWidget\UptimeWidget.exe" />
     </BootstrapperApplication>
+
+    <!--
+      Backs the "Install the .NET 10 Desktop Runtime" checkbox on the Install
+      page (Theme.xml). Checked (1) by default so the runtime is installed when
+      missing; the user can uncheck it to skip the prerequisite.
+    -->
+    <Variable Name="InstallDotNet10" Type="numeric" Value="1" bal:Overridable="yes" />
 
     <!--
       Detect whether the .NET 10 Desktop Runtime (x64) is already installed.
@@ -35,7 +44,8 @@
         from the stable aka.ms redirect. Installed per-machine (requires
         elevation) only when missing. Permanent + non-vital so uninstalling the
         app never removes the shared runtime and a download failure does not
-        abort the app install.
+        abort the app install. Gated by the InstallDotNet10 checkbox so the user
+        can opt out of the prerequisite.
       -->
       <ExePackage
           Id="DotNet10DesktopRuntime"
@@ -45,6 +55,7 @@
           Permanent="yes"
           Vital="no"
           DetectCondition="DotNet10DesktopPresent"
+          InstallCondition="InstallDotNet10"
           InstallArguments="/install /quiet /norestart"
           RepairArguments="/repair /quiet /norestart"
           UninstallArguments="/uninstall /quiet /norestart">

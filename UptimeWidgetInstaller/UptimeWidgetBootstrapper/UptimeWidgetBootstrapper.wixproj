@@ -3,6 +3,13 @@
 		<OutputType>Bundle</OutputType>
 		<AcceptEula>wix7</AcceptEula>
 
+		<!--
+			Theme.wxl is referenced explicitly via the bootstrapper application's
+			LocalizationFile attribute, so disable automatic .wxl embedding to
+			avoid duplicate localization identifiers.
+		-->
+		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+
 		<!-- Bundle exe is x64 to match the app payload/runtime. -->
 		<InstallerPlatform>x64</InstallerPlatform>
 
