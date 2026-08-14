@@ -5,7 +5,8 @@
   <Bundle Name="UptimeWidget"
           Manufacturer="github@jluo1996"
           Version="!(bind.packageVersion.UptimeWidgetMsi)"
-          UpgradeCode="B2E7D9C4-3F81-4A56-9C0D-7E15A8B2F3D6">
+          UpgradeCode="B2E7D9C4-3F81-4A56-9C0D-7E15A8B2F3D6"
+          IconSourceFile="UptimeWidgetLogo.ico">
 
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication
@@ -15,6 +16,7 @@
           LicenseUrl=""
           SuppressOptionsUI="yes"
           LaunchTarget="[LocalAppDataFolder]github@jluo1996\UptimeWidget\UptimeWidget.exe" />
+      <Payload SourceFile="UptimeWidgetLogo.png" />
     </BootstrapperApplication>
 
     <!--

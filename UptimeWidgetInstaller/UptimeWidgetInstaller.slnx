@@ -1,9 +1,9 @@
 <Solution>
   <Configurations>
-    <Platform Name="ARM64" />
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
   <Project Path="UptimeWidgetInstaller/UptimeWidgetInstaller.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0" />
-  <Project Path="UptimeWidgetBootstrapper/UptimeWidgetBootstrapper.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0" />
+  <Project Path="UptimeWidgetBootstrapper/UptimeWidgetBootstrapper.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+    <BuildDependency Project="UptimeWidgetInstaller/UptimeWidgetInstaller.wixproj" />
+  </Project>
 </Solution>

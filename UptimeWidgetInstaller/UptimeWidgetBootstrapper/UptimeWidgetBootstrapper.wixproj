@@ -19,10 +19,11 @@
 			             used only to harvest RemotePayload metadata at build time.
 			             The runtime is still downloaded on demand at install time
 			             (ExePackagePayload Compressed="no" + DownloadUrl).
-			These are supplied by buildInstaller.bat / CI.
+			These are supplied by the CI workflow (or a manual solution build).
 		-->
-		<MsiPath Condition="'$(MsiPath)' == ''">$(MSBuildThisFileDirectory)..\UptimeWidgetInstaller\bin\$(Configuration)\en-US\UptimeWidgetInstaller.msi</MsiPath>
+		<MsiPath Condition="'$(MsiPath)' == ''">$(MSBuildThisFileDirectory)..\UptimeWidgetInstaller\bin\$(Platform)\$(Configuration)\en-US\UptimeWidgetInstaller.msi</MsiPath>
 		<RuntimeExe Condition="'$(RuntimeExe)' == ''">$(MSBuildThisFileDirectory)obj\windowsdesktop-runtime-win-x64.exe</RuntimeExe>
+		<RuntimeUrl>https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe</RuntimeUrl>
 
 		<DefineConstants>$(DefineConstants);MsiPath=$(MsiPath);RuntimeExe=$(RuntimeExe)</DefineConstants>
 
@@ -34,4 +35,17 @@
 		<PackageReference Include="WixToolset.BootstrapperApplications.wixext" Version="7.0.0" />
 		<PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
 	</ItemGroup>
+
+	<!--
+		Fetch the .NET 10 Desktop Runtime installer used only to harvest
+		RemotePayload size/hash metadata at build time. Downloading it here
+		makes the solution build self-sufficient (Visual Studio and CI) so no
+		external script is required. The runtime is still downloaded on demand
+		at install time.
+	-->
+	<Target Name="DownloadRuntimePayload" BeforeTargets="BeforeBuild" Condition="!Exists('$(RuntimeExe)')">
+		<MakeDir Directories="$([System.IO.Path]::GetDirectoryName($(RuntimeExe)))" />
+		<Message Importance="high" Text="Downloading .NET Desktop Runtime payload from $(RuntimeUrl)..." />
+		<DownloadFile SourceUrl="$(RuntimeUrl)" DestinationFolder="$([System.IO.Path]::GetDirectoryName($(RuntimeExe)))" DestinationFileName="$([System.IO.Path]::GetFileName($(RuntimeExe)))" SkipUnchangedFiles="true" />
+	</Target>
 </Project>
