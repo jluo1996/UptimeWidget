@@ -23,6 +23,13 @@ namespace UptimeWidget
         private readonly System.Windows.Forms.Timer _timer;
         private TimeSpan _tickInterval = TimeSpan.FromMilliseconds(1000);
 
+        // At Windows login the shell (explorer/other startup apps) can claim the topmost
+        // z-order band after the widget is shown, so a single topmost assertion in OnShown
+        // does not stick. Re-assert topmost repeatedly for a short window after the widget
+        // is displayed to win that boot-time race.
+        private System.Windows.Forms.Timer? _topmostReassertTimer;
+        private int _topmostReassertsRemaining;
+
         private Color _backColor = Color.FromArgb(0xFF, 0x1E, 0x1E, 0x1E);
         private Color _foreColor = Color.White;
         private string _fontFamily = "Segoe UI";
@@ -325,11 +332,46 @@ namespace UptimeWidget
             }
         }
 
+        /// <summary>
+        /// Starts (or restarts) a short-lived timer that re-asserts the topmost z-order a
+        /// number of times after the widget is shown. This counters the boot-time race where
+        /// the shell claims the topmost band shortly after login, which a one-time assertion
+        /// in <see cref="OnShown"/> cannot survive.
+        /// </summary>
+        private void BeginTopmostReassert()
+        {
+            if (!TopMost)
+            {
+                return;
+            }
+
+            _topmostReassertsRemaining = 20;
+
+            if (_topmostReassertTimer is null)
+            {
+                _topmostReassertTimer = new System.Windows.Forms.Timer { Interval = 500 };
+                _topmostReassertTimer.Tick += OnTopmostReassertTick;
+            }
+
+            _topmostReassertTimer.Start();
+        }
+
+        private void OnTopmostReassertTick(object? sender, EventArgs e)
+        {
+            PromoteIfOnTop();
+
+            if (--_topmostReassertsRemaining <= 0 || !TopMost)
+            {
+                _topmostReassertTimer?.Stop();
+            }
+        }
+
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
             DemoteIfNotOnTop();
             PromoteIfOnTop();
+            BeginTopmostReassert();
         }
 
         private Font BuildFont()
@@ -588,6 +630,8 @@ namespace UptimeWidget
             {
                 _timer.Stop();
                 _timer.Dispose();
+                _topmostReassertTimer?.Stop();
+                _topmostReassertTimer?.Dispose();
             }
             base.Dispose(disposing);
         }
