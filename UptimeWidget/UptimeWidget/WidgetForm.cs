@@ -308,28 +308,10 @@ namespace UptimeWidget
             }
         }
 
-        /// <summary>
-        /// Re-asserts the topmost z-order when "always on top" is enabled. At startup the
-        /// setting is applied before the handle exists, so setting <see cref="Form.TopMost"/>
-        /// alone does not place the window in the topmost band. Calling this after the handle
-        /// is created (from <see cref="OnShown"/>) enforces it, mirroring
-        /// <see cref="DemoteIfNotOnTop"/>.
-        /// </summary>
-        private void PromoteIfOnTop()
-        {
-            if (IsHandleCreated && TopMost)
-            {
-                _ = SetWindowPos(
-                    Handle, HWND_TOPMOST, 0, 0, 0, 0,
-                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-        }
-
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
             DemoteIfNotOnTop();
-            PromoteIfOnTop();
         }
 
         private Font BuildFont()
@@ -603,7 +585,6 @@ namespace UptimeWidget
         private const byte AC_SRC_ALPHA = 0x01;
 
         private static readonly IntPtr HWND_BOTTOM = new(1);
-        private static readonly IntPtr HWND_TOPMOST = new(-1);
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOMOVE = 0x0002;
         private const uint SWP_NOACTIVATE = 0x0010;
