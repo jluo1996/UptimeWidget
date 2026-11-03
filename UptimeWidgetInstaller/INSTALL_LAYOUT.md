@@ -51,6 +51,17 @@ The payload comes from `PayloadDir`, which defaults to:
 
 Placed directly in `DesktopFolder`, pointing to the installed `UptimeWidget.exe`.
 
+## Install-Time UI
+
+Defined in `Package.wxs`:
+
+- Uses the `WixUI_Minimal` UI so a minimal end-user experience is shown.
+- The exit dialog shows an optional "launch after install" checkbox
+  (`WIXUI_EXITDIALOGOPTIONALCHECKBOX`, checked by default).
+- When the checkbox is selected on a fresh install (`NOT Installed`), the
+  `LaunchApplication` custom action runs the installed `UptimeWidget.exe`
+  (via `WixShellExec`, impersonated as the current user).
+
 ## Uninstall Behavior
 
 - `RemoveFolder` cleans up the per-user Start Menu subfolder (`AppProgramMenuFolder`).

@@ -3,7 +3,8 @@ name: Build UptimeWidget
 on:
     push:
         branches:
-            - "**"
+            - main
+            - release/**
     workflow_dispatch:
         inputs:
             build_installer:
@@ -57,7 +58,7 @@ jobs:
 
           - name: Build UptimeWidget
             run: |
-                dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION" -p:Version=${{ steps.version.outputs.value }}
+                dotnet build "$env:UptimeWidget_SOLUTION" --configuration "$env:CONFIGURATION" -p:Version=${{ steps.version.outputs.value }} -p:UpdateRepo=${{ github.repository }}
 
           - name: Verify publish files
             shell: pwsh

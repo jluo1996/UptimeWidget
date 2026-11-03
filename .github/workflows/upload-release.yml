@@ -88,7 +88,6 @@ jobs:
                 echo "Tag name: $tag_name"
 
             - name: Get last non-prerelease release tag
-              if: ${{ inputs.is_prerelease != true }}
               id: get_last_release_tag
               uses: actions/github-script@v9
               with:
@@ -123,11 +122,10 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Delete pre-release
-              if: ${{ inputs.is_prerelease != true }}
               uses: jluo1996/delete-releases-action@v1
               with:
                   tag-pattern: "*-nightly*"
-                  keep-latest: 0
+                  keep-latest: ${{ inputs.is_prerelease == true && 1 || 0 }}
                   remove-tags: true
                   repository: ${{ github.repository }}
                   token: ${{ secrets.GITHUB_TOKEN }}

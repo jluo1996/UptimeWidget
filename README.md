@@ -8,14 +8,14 @@ Grab the latest installer from the **[Releases](https://github.com/jluo1996/Upti
 
 ## Requirements
 
-UptimeWidget runs on Windows versions that support the **.NET 10 Runtime**. If the runtime isn't already present, the installer automatically installs the latest available version of .NET 10, so you don't need to download it separately.
+UptimeWidget runs on Windows versions that support the **.NET 10 Desktop Runtime**. The installer offers to install the runtime if it isn't already present; this option is selected by default and requires administrator approval. You can clear the option if you plan to install the runtime yourself.
 
 To view the latest list of all supported Windows versions, please refer to Microsoft's [Install .NET on Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows#supported-versions) documentation.
 
 ## Getting Started
 
-1. Download and run the installer from the **[Releases](https://github.com/jluo1996/UptimeWidget/releases)** page.
-2. Launch **UptimeWidget**. The widget appears on your desktop and an icon is added to the system tray (bottom-right of the taskbar).
+1. Download and run the installer from the **[Releases](https://github.com/jluo1996/UptimeWidget/releases)** page. The installer offers to install the .NET 10 Desktop Runtime if needed.
+2. The installer offers to launch **UptimeWidget** when setup finishes (selected by default). Otherwise, launch it from the Start menu or desktop shortcut. The widget appears on your desktop and an icon is added to the system tray (bottom-right of the taskbar).
 3. Use the tray icon to open settings, show/hide the widget, or exit the app.
 
 ## Features
@@ -33,10 +33,15 @@ Right-click the tray icon to access:
 - **Settings…** — Open the settings window to customize the widget.
 - **Show widget** — Show or hide the widget.
 - **Lock position** — Lock or unlock the widget's position.
+- **Check for updates…** — Check GitHub for a newer release and install it if one is found.
 - **About…** — View version information.
 - **Exit** — Close the app.
 
 Double-click the tray icon to quickly show or hide the widget.
+
+## Updating
+
+UptimeWidget checks for a newer release on GitHub automatically at startup, and you can check any time from **Check for updates…** in the tray menu. When a newer version is found, you're prompted before anything is downloaded. If you accept, the latest installer is downloaded and run to upgrade in place — no need to visit the Releases page manually. By default only stable releases are offered; enable **Include prerelease updates** in Settings to also receive nightly builds. Update checks never block the widget, and failures (for example, no internet connection) are silent unless you started the check yourself.
 
 ### Settings
 
@@ -50,6 +55,7 @@ Open **Settings…** from the tray menu to customize the widget. Changes preview
 - **Text color / Background color:** Pick your preferred colors.
 - **Always on top:** Keep the widget above other windows.
 - **Start with Windows:** Launch UptimeWidget automatically when you sign in.
+- **Include prerelease updates:** When enabled, update checks also consider prerelease (nightly) builds, not just stable releases.
 
 ## Interaction Reference
 
