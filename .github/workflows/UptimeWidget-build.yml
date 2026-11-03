@@ -5,6 +5,10 @@ on:
         branches:
             - main
             - release/**
+    pull_request:
+        branches:
+            - main
+            - release/**
     workflow_dispatch:
         inputs:
             build_installer:
@@ -77,7 +81,7 @@ jobs:
 
     build_installer:
         needs: build_UptimeWidget
-        if: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true) }}
+        if: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true) }}
         uses: ./.github/workflows/installer-build.yml
         with:
             is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}
