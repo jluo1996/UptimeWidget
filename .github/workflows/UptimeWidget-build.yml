@@ -79,6 +79,10 @@ jobs:
                     UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/
                     !UptimeWidget/UptimeWidget/bin/${{ env.PLATFORM }}/${{ env.CONFIGURATION }}/net10.0-windows/**/*.pdb
 
+    unit_tests:
+        needs: build_UptimeWidget
+        uses: ./.github/workflows/validate.yml
+
     build_installer:
         needs: build_UptimeWidget
         if: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'workflow_dispatch' && inputs.build_installer == true) }}
@@ -87,7 +91,7 @@ jobs:
             is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}
 
     upload_release:
-        needs: [build_UptimeWidget, build_installer]
+        needs: [build_UptimeWidget, build_installer, unit_tests]
         if: ${{ success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) }}
         uses: ./.github/workflows/upload-release.yml
         with:
