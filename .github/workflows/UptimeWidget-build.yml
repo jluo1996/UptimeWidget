@@ -91,7 +91,7 @@ jobs:
             is_prerelease: ${{ needs.build_UptimeWidget.outputs.is_prerelease == 'true' }}
 
     upload_release:
-        needs: [build_UptimeWidget, build_installer]
+        needs: [build_UptimeWidget, build_installer, unit_tests]
         if: ${{ success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) }}
         uses: ./.github/workflows/upload-release.yml
         with:
