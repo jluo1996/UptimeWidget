@@ -1,7 +1,8 @@
 name: Validate UptimeWidget
 
 on:
-    workflow_dispatch:
+    workflow_call:
+        inputs:
 
 permissions:
     contents: read
