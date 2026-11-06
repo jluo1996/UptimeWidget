@@ -5,4 +5,5 @@
   <Project Path="UptimeWidget/UptimeWidget.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <Project Path="UptimeWidget.Tests/UptimeWidget.Tests.csproj" />
 </Solution>

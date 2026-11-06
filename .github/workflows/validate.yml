@@ -1,0 +1,29 @@
+name: Validate UptimeWidget
+
+on:
+    push:
+        branches:
+            - main
+            - release/**
+    pull_request:
+        branches:
+            - main
+            - release/**
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        runs-on: windows-latest
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v7
+            with:
+                sparse-checkout: |
+                    UptimeWidget
+                sparse-checkout-cone-mode: true
+
+          - name: Run tests
+            run: dotnet test UptimeWidget/UptimeWidget.slnx --configuration Release
