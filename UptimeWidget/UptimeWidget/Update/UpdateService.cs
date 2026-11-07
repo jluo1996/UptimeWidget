@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
@@ -23,15 +22,21 @@ namespace UptimeWidget.Update
         string? Error = null,
         bool IsPrerelease = false)
     {
-        public static UpdateCheckResult UpToDate(Version latest) =>
-            new(UpdateStatus.UpToDate, latest);
+        public static UpdateCheckResult UpToDate(Version latest)
+        {
+            return new(UpdateStatus.UpToDate, latest);
+        }
 
         public static UpdateCheckResult Available(
-            Version latest, string url, string assetName, bool isPrerelease = false) =>
-            new(UpdateStatus.UpdateAvailable, latest, url, assetName, IsPrerelease: isPrerelease);
+            Version latest, string url, string assetName, bool isPrerelease = false)
+        {
+            return new(UpdateStatus.UpdateAvailable, latest, url, assetName, IsPrerelease: isPrerelease);
+        }
 
-        public static UpdateCheckResult Fail(string error) =>
-            new(UpdateStatus.Failed, Error: error);
+        public static UpdateCheckResult Fail(string error)
+        {
+            return new(UpdateStatus.Failed, Error: error);
+        }
     }
 
     /// <summary>
@@ -81,14 +86,11 @@ namespace UptimeWidget.Update
                 .GetCustomAttributes<AssemblyMetadataAttribute>()
                 .FirstOrDefault(a => a.Key == "UpdateRepo")?.Value;
 
-            if (string.IsNullOrWhiteSpace(fromMetadata))
-            {
-                throw new InvalidOperationException(
+            return string.IsNullOrWhiteSpace(fromMetadata)
+                ? throw new InvalidOperationException(
                     "No update repository configured. Set the UPTIMEWIDGET_UPDATE_REPO " +
-                    "environment variable or build with -p:UpdateRepo=owner/name.");
-            }
-
-            return fromMetadata.Trim();
+                    "environment variable or build with -p:UpdateRepo=owner/name.")
+                : fromMetadata.Trim();
         }
 
         /// <summary>
@@ -105,12 +107,9 @@ namespace UptimeWidget.Update
             try
             {
                 Version? current = GetCurrentVersion();
-                if (current is null)
-                {
-                    return UpdateCheckResult.Fail("Could not determine the current version.");
-                }
-
-                return includePrereleases
+                return current is null
+                    ? UpdateCheckResult.Fail("Could not determine the current version.")
+                    : includePrereleases
                     ? await CheckIncludingPrereleasesAsync(current, cancellationToken)
                         .ConfigureAwait(false)
                     : await CheckLatestStableAsync(current, cancellationToken)
@@ -158,13 +157,10 @@ namespace UptimeWidget.Update
             }
 
             (string? url, string? assetName) = SelectInstallerAsset(root);
-            if (url is null || assetName is null)
-            {
-                return UpdateCheckResult.Fail(
-                    "Newer release found but no installer asset was available.");
-            }
-
-            return UpdateCheckResult.Available(latest, url, assetName, isPrerelease: false);
+            return url is null || assetName is null
+                ? UpdateCheckResult.Fail(
+                    "Newer release found but no installer asset was available.")
+                : UpdateCheckResult.Available(latest, url, assetName, isPrerelease: false);
         }
 
         /// <summary>
@@ -238,15 +234,12 @@ namespace UptimeWidget.Update
                 }
             }
 
-            if (bestVersion is null)
-            {
-                return highestSeen is not null && highestSeen > current
+            return bestVersion is null
+                ? highestSeen is not null && highestSeen > current
                     ? UpdateCheckResult.Fail(
                         "Newer release found but no installer asset was available.")
-                    : UpdateCheckResult.UpToDate(highestSeen ?? current);
-            }
-
-            return bestVersion > current
+                    : UpdateCheckResult.UpToDate(highestSeen ?? current)
+                : bestVersion > current
                 ? UpdateCheckResult.Available(bestVersion, bestUrl!, bestAsset!, bestIsPrerelease)
                 : UpdateCheckResult.UpToDate(bestVersion);
         }
@@ -351,12 +344,9 @@ namespace UptimeWidget.Update
         /// </summary>
         public static Version? NormalizeVersion(string? value)
         {
-            if (string.IsNullOrWhiteSpace(value) || !Version.TryParse(value, out Version? parsed))
-            {
-                return null;
-            }
-
-            return new Version(
+            return string.IsNullOrWhiteSpace(value) || !Version.TryParse(value, out Version? parsed)
+                ? null
+                : new Version(
                 parsed.Major,
                 parsed.Minor,
                 parsed.Build < 0 ? 0 : parsed.Build,

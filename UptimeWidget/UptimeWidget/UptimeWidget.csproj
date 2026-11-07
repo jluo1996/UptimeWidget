@@ -14,6 +14,7 @@
     <!-- GitHub "owner/repo" used for update checks. Overridable at build time:
          dotnet build -p:UpdateRepo=owner/name (CI passes ${{ github.repository }}). -->
     <UpdateRepo Condition="'$(UpdateRepo)' == ''">jluo1996/UptimeWidget</UpdateRepo>
+    <Configurations>Debug;Release;Release_with_unit</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
