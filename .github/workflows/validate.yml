@@ -1,6 +1,7 @@
 name: Validate UptimeWidget
 
 on:
+    workflow_dispatch:
     workflow_call:
 
 permissions:
@@ -18,4 +19,4 @@ jobs:
                 sparse-checkout-cone-mode: true
 
           - name: Run tests
-            run: dotnet test UptimeWidget/UptimeWidget.slnx --configuration Release
+            run: dotnet test UptimeWidget/UptimeWidget.slnx --configuration Release_with_unit
